@@ -1,0 +1,7 @@
+/lib*/Optibits*.lib
+/pkg
+/tmp
+
+# CMake files
+/build
+/examples/build

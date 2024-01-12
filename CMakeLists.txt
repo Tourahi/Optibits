@@ -92,3 +92,11 @@ install(FILES
 export(EXPORT optibits-targets
   FILE ${CMAKE_CURRENT_BINARY_DIR}/OptibitsTargets.cmake
   NAMESPACE Optibits::)
+
+
+add_library(Optibits::Optibits ALIAS optibits)
+
+if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+  enable_testing()
+  add_subdirectory(test)
+endif ()

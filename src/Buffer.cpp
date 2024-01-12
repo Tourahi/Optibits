@@ -22,7 +22,7 @@ Optibits::Buffer::Buffer(void* buffer, std::size_t size, std::function<void(void
     throw std::invalid_argument("Tried to create non-empty Optibits::Buffer from nullptr");
   }
   if (size >= std::numeric_limits<std::ptrdiff_t>::max()) {
-    throw std::invalid_argument("Tried to create Optibits::Buffer with negative size");
+    throw std::length_error("Tried to create Optibits::Buffer with negative size");
   }
 }
 

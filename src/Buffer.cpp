@@ -86,12 +86,12 @@ Optibits::Buffer::Buffer(const Optibits::Buffer& other)
 {
 }
 
-Optibits::Buffer& Optibits::Buffer:operator=(const Optibits::Buffer& other)
-[
+Optibits::Buffer& Optibits::Buffer::operator=(const Optibits::Buffer& other)
+{
   if (this == &other)
   {
     return *this;
   }
 
   return *this = Buffer(other);
-]
+}

@@ -38,5 +38,6 @@ namespace Optibits
 
   Buffer load_file(const std::string& filename);
 
-
+  void save_file(const Buffer& buffer, const std::string& filename);
+  
 }

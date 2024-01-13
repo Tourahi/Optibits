@@ -88,10 +88,48 @@ Optibits::Buffer::Buffer(const Optibits::Buffer& other)
 
 Optibits::Buffer& Optibits::Buffer::operator=(const Optibits::Buffer& other)
 {
-  if (this == &other)
-  {
+  if (this == &other) {
     return *this;
   }
 
   return *this = Buffer(other);
 }
+
+#ifdef OPTIBITS_IPHONE
+  // TODO
+#else
+Optibits::Buffer Optibits::load_file(const std::string& filename)
+{
+  std::size_t size = 0;
+  void* contents = SDL_LoadFile(filename.c_str(), &size);
+  if (contents == nullptr) {
+    throw std::runtime_error("Could not read '" + filename + "', error: " + SDL_GetError());
+  }
+  return Buffer(contents, size, &SDL_free);
+}
+
+void Optibits::save_file(const Buffer& buffer, const std::string& filename)
+{
+  struct RWopsDeleter
+  {
+    void operator()(SDL_RWops* p) const
+    {
+      if (p) {
+        SDL_RWops(p);
+      }
+    }
+  };
+
+  std::unique_ptr<SDL_RWops, RWopsDeleter> rwops(SDL_RWFromFile(filename.c_str(), "w"));
+  if (rwops == nullptr) {
+    throw std::runtime_error("Could not open '" + filename + "', error: " + SDL_GetError());
+  }
+  std::size_t written = SDL_RWwrite(rwops.get(), buffer.data(), buffer.size(), 1);
+
+  if (written == 0) {
+    throw std::runtime_error("Could not write to '" + filename + "', error: " + SDL_GetError());
+  }
+}
+
+
+#endif

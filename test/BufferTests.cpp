@@ -52,5 +52,18 @@ TEST_F(BufferTests, from_existing_memory)
 
 TEST_F(BufferTests, from_size)
 {
-    
+    ASSERT_THROW(Optibits::Buffer(-5), std::length_error);
+    Optibits::Buffer buffer(600);
+    ASSERT_EQ(buffer.size(), 600);
+
+    // Assigning to self in no-op
+    buffer = buffer;
+    ASSERT_EQ(buffer.size(), 600);
+    buffer = std::move(buffer);
+
+    // Copying has to make another copy of mem
+    Optibits::Buffer buffer2;
+    buffer2 = buffer;
+    ASSERT_EQ(buffer2.size(), 600);
+    ASSERT_NE(buffer2.data(), buffer.data());
 }

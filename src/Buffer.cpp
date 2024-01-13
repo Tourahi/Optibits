@@ -111,19 +111,19 @@ Optibits::Buffer Optibits::load_file(const std::string& filename)
 void Optibits::save_file(const Buffer& buffer, const std::string& filename)
 {
   struct RWopsDeleter
-  {
-    void operator()(SDL_RWops* p) const
     {
-      if (p) {
-        SDL_RWops(p);
+      void operator()(SDL_RWops* p) const
+      {
+        if (p) {
+            SDL_RWclose(p);
+        }
       }
-    }
-  };
+    };
 
   std::unique_ptr<SDL_RWops, RWopsDeleter> rwops(SDL_RWFromFile(filename.c_str(), "w"));
   if (rwops == nullptr) {
     throw std::runtime_error("Could not open '" + filename + "', error: " + SDL_GetError());
-  }
+  } 
   std::size_t written = SDL_RWwrite(rwops.get(), buffer.data(), buffer.size(), 1);
 
   if (written == 0) {

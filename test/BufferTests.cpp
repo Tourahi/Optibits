@@ -67,3 +67,21 @@ TEST_F(BufferTests, from_size)
     ASSERT_EQ(buffer2.size(), 600);
     ASSERT_NE(buffer2.data(), buffer.data());
 }
+
+TEST_F(BufferTests, file_io)
+{
+    const Optibits::Buffer buffer = Optibits::load_file("test_image_io/smt.bmp");
+    ASSERT_GT(buffer.size(), 2);
+    ASSERT_EQ(buffer.data()[0], 'B');
+    ASSERT_EQ(buffer.data()[1], 'M');
+
+    const std::string temp_filename = std::filesystem::temp_directory_path() / "io_test.bin";
+    Optibits::save_file(buffer, temp_filename);
+    const Optibits::Buffer buffer2 = Optibits::load_file(temp_filename);
+
+    ASSERT_EQ(buffer.size(), buffer2.size());
+    ASSERT_EQ(0, std::memcmp(buffer.data(), buffer2.data(), buffer.size()));
+
+    ASSERT_THROW(Optibits::save_file(buffer2, "/no/path"), std::runtime_error);
+
+}

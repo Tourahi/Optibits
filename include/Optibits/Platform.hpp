@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(WIN32) || define(WIN64)
+#if defined(WIN32) || defined(_WIN64)
 # define OPTIBITS_WIN
 #else
 # define OPTIBITS_UNIX

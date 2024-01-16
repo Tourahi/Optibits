@@ -8,6 +8,8 @@
 namespace Optibits
 {
 
-  bool has_extention(std::string_view filename, std::string_view ext);
+  bool has_extension(std::string_view filename, std::string_view ext);
+
+  std::vector<std::string> user_languages();
 
 }

@@ -48,7 +48,7 @@ namespace Optibits
     bool overlaps(const Rect& other) const;
     bool contains(const Rect& other) const;
 
-    void clipTo(const Rect& boundingBox, int*  adjustX = nullptr, int*  adjustY = nullptr);
+    void clip_to(const Rect& boundingBox, int*  adjustX = nullptr, int*  adjustY = nullptr);
     
     bool operator==(const Rect& other) const = default;
   };

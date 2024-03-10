@@ -118,7 +118,7 @@ bool Optibits::Rect::contains(const Rect& other) const
   return x <= other.x && other.right() <= right() && y <= other.y && other.bottom() <= bottom();
 }
 
-void Optibits::Rect::clipTo(const Rect& boundingBox, int*  adjustX, int*  adjustY)
+void Optibits::Rect::clip_to(const Rect& boundingBox, int*  adjustX, int*  adjustY)
 {
 
   const int extraPixelsLeft = boundingBox.x - x;

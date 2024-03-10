@@ -35,7 +35,28 @@ bool Optibits::has_extension(std::string_view filename, std::string_view ext)
 
 
 #ifdef OPTIBITS_IPHONE
-// TODO
+#import <Foundation/Foundation.h>
+#include <regex>
+
+std::vector<std::string> Optibits::user_languages()
+{
+  static const std::regex language_regex("([a-z]{2})-([A-Z]{2})([^A-Z].*)?");
+
+  std::vector<std::string> user_languages;
+
+  @autoreleasepool {
+    for (NSString* language in [NSLocale preferredLanguages]) {
+      std::string language_str = language.UTF8String;
+      std::smatch match;
+      if (std::regex_match(language_str, match, language_regex)) {
+        user_languages.push_back(match.str(1) + "_" + match.str(2));
+      }
+    }
+  }
+
+  return user_languages;
+}
+
 #else
 #include <SDL.h>
 #if SDL_VERSION_ATLEAST(2, 0, 14)
@@ -62,7 +83,21 @@ std::vector<std::string> Optibits::user_languages()
 }
 
 #else
-// TODO
+
+std::vector<std::string> Optibits::user_languages()
+{
+  static const std::regex language_regex("[a-z]{2}_[A-Z]{2}([^A-Z].*)?");
+
+  const char* locale = std::getenv("LANG");
+
+  if (locale && std::regex_match(locale, language_regex)) {
+    // Trim off anything after the language code.
+    return { std::string(locale, locale + 5) };
+  }
+
+  return {};
+}
+
 #endif
 #endif
 

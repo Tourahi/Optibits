@@ -1,9 +1,16 @@
 #include <Optibits/Buffer.hpp>
+#include <Optibits/Platform.hpp>
 #include <limits>
 #include <memory>
 #include <stdexcept>
 
+
+#ifdef OPTIBITS_IPHONE
+#include <filesystem>
+#include <fstream>
+#else
 #include <SDL.h>
+#endif
 
 
 void Optibits::Buffer::drop()
@@ -96,8 +103,32 @@ Optibits::Buffer& Optibits::Buffer::operator=(const Optibits::Buffer& other)
 }
 
 #ifdef OPTIBITS_IPHONE
-  // TODO
+
+Optibits::Buffer Optibits::load_file(const std::string& filename)
+{
+  Buffer buffer(std::filesystem::file_size(filename));
+  char* ptr = reinterpret_cast<char*>(buffer.data());
+  std::ifstream file(filename, std::ios::binary);
+  // GCOV_EXCL_START: It is hard to set up a file where file_size works but reading doesn't.
+  if (!file || !file.read(ptr, static_cast<std::streamoff>(buffer.size()))) {
+    throw std::runtime_error("Could not read file '" + filename + "'");
+  }
+  // GCOV_EXCL_END
+  return buffer;
+}
+
+
+void Optibits::save_file(const Buffer& buffer, const std::string& filename)
+{
+  std::ofstream file(filename, std::ios::binary | std::ios::trunc);
+  const char* ptr = reinterpret_cast<const char*>(buffer.data());
+  if (!file || !file.write(ptr, static_cast<std::streamoff>(buffer.size()))) {
+    throw std::runtime_error("Could not write file '" + filename + "'");
+  }
+}
+
 #else
+
 Optibits::Buffer Optibits::load_file(const std::string& filename)
 {
   std::size_t size = 0;
@@ -130,6 +161,5 @@ void Optibits::save_file(const Buffer& buffer, const std::string& filename)
     throw std::runtime_error("Could not write to '" + filename + "', error: " + SDL_GetError());
   }
 }
-
 
 #endif

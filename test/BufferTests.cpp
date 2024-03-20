@@ -61,7 +61,7 @@ TEST_F(BufferTests, from_size)
     ASSERT_EQ(buffer.size(), 600);
     buffer = std::move(buffer);
 
-    // Copying has to make another copy of mem
+    // Copying ² to make another copy of mem
     Optibits::Buffer buffer2;
     buffer2 = buffer;
     ASSERT_EQ(buffer2.size(), 600);
@@ -70,18 +70,18 @@ TEST_F(BufferTests, from_size)
 
 TEST_F(BufferTests, file_io)
 {
-    const Optibits::Buffer buffer = Optibits::load_file("test_image_io/smt.bmp");
+    const Optibits::Buffer buffer = Optibits::loadFile("test_image_io/smt.bmp");
     ASSERT_GT(buffer.size(), 2);
     ASSERT_EQ(buffer.data()[0], 'B');
     ASSERT_EQ(buffer.data()[1], 'M');
 
     const std::string temp_filename = std::filesystem::temp_directory_path() / "io_test.bin";
-    Optibits::save_file(buffer, temp_filename);
-    const Optibits::Buffer buffer2 = Optibits::load_file(temp_filename);
+    Optibits::saveFile(buffer, temp_filename);
+    const Optibits::Buffer buffer2 = Optibits::loadFile(temp_filename);
 
     ASSERT_EQ(buffer.size(), buffer2.size());
     ASSERT_EQ(0, std::memcmp(buffer.data(), buffer2.data(), buffer.size()));
 
-    ASSERT_THROW(Optibits::save_file(buffer2, "/no/path"), std::runtime_error);
+    ASSERT_THROW(Optibits::saveFile(buffer2, "/no/path"), std::runtime_error);
 
 }

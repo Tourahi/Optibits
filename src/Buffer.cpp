@@ -104,7 +104,7 @@ Optibits::Buffer& Optibits::Buffer::operator=(const Optibits::Buffer& other)
 
 #ifdef OPTIBITS_IPHONE
 
-Optibits::Buffer Optibits::load_file(const std::string& filename)
+Optibits::Buffer Optibits::loadFile(const std::string& filename)
 {
   Buffer buffer(std::filesystem::file_size(filename));
   char* ptr = reinterpret_cast<char*>(buffer.data());
@@ -118,7 +118,7 @@ Optibits::Buffer Optibits::load_file(const std::string& filename)
 }
 
 
-void Optibits::save_file(const Buffer& buffer, const std::string& filename)
+void Optibits::saveFile(const Buffer& buffer, const std::string& filename)
 {
   std::ofstream file(filename, std::ios::binary | std::ios::trunc);
   const char* ptr = reinterpret_cast<const char*>(buffer.data());
@@ -129,7 +129,7 @@ void Optibits::save_file(const Buffer& buffer, const std::string& filename)
 
 #else
 
-Optibits::Buffer Optibits::load_file(const std::string& filename)
+Optibits::Buffer Optibits::loadFile(const std::string& filename)
 {
   std::size_t size = 0;
   void* contents = SDL_LoadFile(filename.c_str(), &size);
@@ -139,7 +139,7 @@ Optibits::Buffer Optibits::load_file(const std::string& filename)
   return Buffer(contents, size, &SDL_free);
 }
 
-void Optibits::save_file(const Buffer& buffer, const std::string& filename)
+void Optibits::saveFile(const Buffer& buffer, const std::string& filename)
 {
   struct RWopsDeleter
     {

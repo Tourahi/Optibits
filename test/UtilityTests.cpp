@@ -8,13 +8,13 @@ class UtilityTests : public testing::Test
 
 TEST_F(UtilityTests, has_extension)
 {
-  ASSERT_TRUE(Optibits::has_extension("filename.bmp", ".bmp"));
+  ASSERT_TRUE(Optibits::hasExtension("filename.bmp", ".bmp"));
 }
 
 
 TEST_F(UtilityTests, user_languages)
 {
-  for (const std::string& lang : Optibits::user_languages()) {
+  for (const std::string& lang : Optibits::userLanguages()) {
     ASSERT_GE(lang.length(), 2);
   }
 }

@@ -8,11 +8,11 @@
 namespace Optibits
 {
 
-  bool has_extension(std::string_view filename, std::string_view ext);
+  bool hasExtension(std::string_view filename, std::string_view ext);
 
-  std::vector<std::string> user_languages();
+  std::vector<std::string> userLanguages();
 
-  std::u32string utf8_to_composed_utc4(std::string_view utf8);
+  std::u32string utf8ToComposedUtc4(std::string_view utf8);
 
 
   class Noncopyable
@@ -48,7 +48,7 @@ namespace Optibits
     bool overlaps(const Rect& other) const;
     bool contains(const Rect& other) const;
 
-    void clip_to(const Rect& boundingBox, int*  adjustX = nullptr, int*  adjustY = nullptr);
+    void clipTo(const Rect& boundingBox, int*  adjustX = nullptr, int*  adjustY = nullptr);
     
     bool operator==(const Rect& other) const = default;
   };

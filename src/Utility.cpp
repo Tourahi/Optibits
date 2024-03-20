@@ -5,32 +5,32 @@
 #include <utf8proc.h>
 
 
-bool Optibits::has_extension(std::string_view filename, std::string_view ext)
+bool Optibits::hasExtension(std::string_view filename, std::string_view ext)
 {
   if (ext.starts_with('.')) {
     ext.remove_prefix(1);
   }
 
-  std::size_t ext_len = ext.length();
-  if (ext_len >= filename.length()){
+  std::size_t extLen = ext.length();
+  if (extLen >= filename.length()){
       return false;
   }
 
-  std::string_view::iterator filename_iter = filename.end();
-  std::string_view::iterator ext_iter = ext.end();
+  std::string_view::iterator filenameIter = filename.end();
+  std::string_view::iterator extIter = ext.end();
 
-  while (ext_len--) {
-    --filename_iter;
-    --ext_iter;
+  while (extLen--) {
+    --filenameIter;
+    --extIter;
 
-    if (std::tolower(static_cast<int>(*filename_iter))
-      != std::tolower(static_cast<int>(*ext_iter))) {
+    if (std::tolower(static_cast<int>(*filenameIter))
+      != std::tolower(static_cast<int>(*extIter))) {
       return false;
     }
   }
-  --filename_iter;
+  --filenameIter;
 
-  return *filename_iter == '.';
+  return *filenameIter == '.';
 }
 
 
@@ -38,37 +38,37 @@ bool Optibits::has_extension(std::string_view filename, std::string_view ext)
 #import <Foundation/Foundation.h>
 #include <regex>
 
-std::vector<std::string> Optibits::user_languages()
+std::vector<std::string> Optibits::userLanguages()
 {
-  static const std::regex language_regex("([a-z]{2})-([A-Z]{2})([^A-Z].*)?");
+  static const std::regex languageRegex("([a-z]{2})-([A-Z]{2})([^A-Z].*)?");
 
-  std::vector<std::string> user_languages;
+  std::vector<std::string> userLanguages;
 
   @autoreleasepool {
     for (NSString* language in [NSLocale preferredLanguages]) {
-      std::string language_str = language.UTF8String;
+      std::string languageStr = language.UTF8String;
       std::smatch match;
-      if (std::regex_match(language_str, match, language_regex)) {
-        user_languages.push_back(match.str(1) + "_" + match.str(2));
+      if (std::regex_match(languageStr, match, languageRegex)) {
+        userLanguages.push_back(match.str(1) + "_" + match.str(2));
       }
     }
   }
 
-  return user_languages;
+  return userLanguages;
 }
 
 #else
 #include <SDL.h>
 #if SDL_VERSION_ATLEAST(2, 0, 14)
 
-std::vector<std::string> Optibits::user_languages()
+std::vector<std::string> Optibits::userLanguages()
 {
-  std::vector<std::string> user_langs;
+  std::vector<std::string> userLangs;
 
   std::unique_ptr<SDL_Locale, decltype(SDL_free)*> locales(SDL_GetPreferredLocales(), SDL_free);
 
   if (!locales) {
-    return user_langs;
+    return userLangs;
   }
 
   for (const SDL_Locale* locale = locales.get(); locale->language != nullptr; ++locale) {
@@ -76,21 +76,21 @@ std::vector<std::string> Optibits::user_languages()
     if (locale->country) {
 
     }
-    user_langs.emplace_back(std::move(lang));
+    userLangs.emplace_back(std::move(lang));
   }
 
-  return user_langs;
+  return userLangs;
 }
 
 #else
 
-std::vector<std::string> Optibits::user_languages()
+std::vector<std::string> Optibits::userLanguages()
 {
-  static const std::regex language_regex("[a-z]{2}_[A-Z]{2}([^A-Z].*)?");
+  static const std::regex languageRegex("[a-z]{2}_[A-Z]{2}([^A-Z].*)?");
 
   const char* locale = std::getenv("LANG");
 
-  if (locale && std::regex_match(locale, language_regex)) {
+  if (locale && std::regex_match(locale, languageRegex)) {
     // Trim off anything after the language code.
     return { std::string(locale, locale + 5) };
   }
@@ -103,41 +103,41 @@ std::vector<std::string> Optibits::user_languages()
 
 
 
-std::u32string Optibits::utf8_to_composed_utc4(std::string_view utf8)
+std::u32string Optibits::utf8ToComposedUtc4(std::string_view utf8)
 {
   std::u32string utc4;
   utc4.reserve(utf8.size());
 
-  const auto* current_byte = reinterpret_cast<const utf8proc_uint8_t*>(utf8.data());
-  auto remaining_length = static_cast<utf8proc_ssize_t>(utf8.length());
+  const auto* currentByte = reinterpret_cast<const utf8proc_uint8_t*>(utf8.data());
+  auto remainingLength = static_cast<utf8proc_ssize_t>(utf8.length());
 
   utf8proc_int32_t codepoint;
-  while (remaining_length) {
-    auto bytes_read = utf8proc_iterate(current_byte, remaining_length, &codepoint);
-    if (bytes_read < 0) {
+  while (remainingLength) {
+    auto bytesRead = utf8proc_iterate(currentByte, remainingLength, &codepoint);
+    if (bytesRead < 0) {
       // Not looking good, skip this byte and retry.
-      current_byte += 1;
-      remaining_length -= 1;
+      currentByte += 1;
+      remainingLength -= 1;
     }
     else {
       utc4.push_back(codepoint);
-      current_byte += bytes_read;
-      remaining_length -= bytes_read;
+      currentByte += bytesRead;
+      remainingLength -= bytesRead;
     }
   }
 
   // Now compose characters in-place.
-  auto* utc4_data = reinterpret_cast<utf8proc_int32_t*>(utc4.data());
-  auto utc4_length = static_cast<utf8proc_ssize_t>(utc4.length());
+  auto* utc4Data = reinterpret_cast<utf8proc_int32_t*>(utc4.data());
+  auto utc4Length = static_cast<utf8proc_ssize_t>(utc4.length());
   auto options = static_cast<utf8proc_option_t>(UTF8PROC_NLF2LF | UTF8PROC_COMPOSE);
-  auto new_length = utf8proc_normalize_utf32(utc4_data, utc4_length, options);
+  auto newLength = utf8proc_normalize_utf32(utc4Data, utc4Length, options);
   // GCOV_EXCL_START: No code path in utf8proc_normalize_utf32 currently returns an error.
-  if (new_length < 0) {
+  if (newLength < 0) {
     throw std::runtime_error("Could not normalize '" + std::string(utf8)
-      + "': " + utf8proc_errmsg(new_length));
+      + "': " + utf8proc_errmsg(newLength));
   }
   // GCOV_EXCL_END
-  utc4.resize(new_length);
+  utc4.resize(newLength);
 
   return utc4;
 
@@ -153,7 +153,7 @@ bool Optibits::Rect::contains(const Rect& other) const
   return x <= other.x && other.right() <= right() && y <= other.y && other.bottom() <= bottom();
 }
 
-void Optibits::Rect::clip_to(const Rect& boundingBox, int*  adjustX, int*  adjustY)
+void Optibits::Rect::clipTo(const Rect& boundingBox, int*  adjustX, int*  adjustY)
 {
 
   const int extraPixelsLeft = boundingBox.x - x;

@@ -56,11 +56,11 @@ namespace Optibits
   /// @brief Loads a whole file into a buffer.
   /// @param filename 
   /// @return 
-  Buffer load_file(const std::string& filename);
+  Buffer loadFile(const std::string& filename);
 
   /// @brief Creates or overwrites a file with the contents of a buffer.
   /// @param buffer 
   /// @param filename 
-  void save_file(const Buffer& buffer, const std::string& filename);
+  void saveFile(const Buffer& buffer, const std::string& filename);
   
 }

@@ -18,7 +18,6 @@ unsigned long Optibits::milliseconds()
 
   static unsigned long start = ms;
   return ms - start;
-
 }
 
 

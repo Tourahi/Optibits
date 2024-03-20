@@ -14,6 +14,11 @@ namespace Optibits
 
   std::u32string utf8ToComposedUtc4(std::string_view utf8);
 
+#ifdef OPTIBITS_WIN
+  std::wstring utf8ToUtf16(const std::string& utf8);
+  std::string utf16ToUtf8(const std::string& utf8);
+#endif
+
 
   class Noncopyable
   {

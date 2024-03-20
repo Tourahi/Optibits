@@ -8,8 +8,14 @@
 #include <unistd.h>
 #endif
 
-
-
+void Optibits::useResourceDir()
+{
+#ifdef OPTIBITS_WIN
+  SetCurrentDirectoryW(utf8ToUtf16(resourcePath()).c_str());
+#else
+  chdir(resourcePath().c_str());
+#endif
+}
 
 #ifndef OPTIBITS_IPHONE
 #include <SDL.h>
@@ -19,13 +25,13 @@
 
 #ifndef OPTIBITS_IPHONE
 
-std::string resourcePath(const std::string& relativeFileName)
+std::string Optibits::resourcePath(const std::string& relativeFileName)
 {
   static const char* resourcePrefix = SDL_GetBasePath();
   return relativeFileName.empty() ? resourcePrefix : resourcePrefix + relativeFileName;
 }
 
-std::string userSettingsPath(const std::string& org, const std::string& app, const std::string& relativeFileName)
+std::string Optibits::userSettingsPath(const std::string& org, const std::string& app, const std::string& relativeFileName)
 {
   char* settingsPrefix = SDL_GetPrefPath(org.c_str(), app.c_str());
 
@@ -37,13 +43,3 @@ std::string userSettingsPath(const std::string& org, const std::string& app, con
   return relativeFileName.empty() ? settingsPrefix : settingsPrefix + relativeFileName;
 }
 #endif
-
-
-void useResourceDir()
-{
-// #ifdef OPTIBITS_WIN
-//   SetCurrentDirectoryW(utf8_to_utf16(resourcePath()).c_str());
-// #else
-//   chdir(resourcePath().c_str());
-// #endif
-}

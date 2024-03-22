@@ -44,5 +44,8 @@ namespace Optibits
     bool operator==(const Bitmap&) const;
 
   };
-  
+
+
+  Bitmap applyBorderFlags(unsigned imageFlags, const Bitmap& source, Rect sourceRect);
+
 }

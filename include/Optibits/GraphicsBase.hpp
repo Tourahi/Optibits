@@ -30,7 +30,15 @@ namespace Optibits
 
   enum ImageFlags
   {
-    IF_SMOOTH = 0
+    IF_SMOOTH = 0,
+
+    IF_TILEABLE_LEFT = 1 << 1,
+    IF_TILEABLE_TOP = 1 << 2,
+    IF_TILEABLE_RIGHT = 1 << 3,
+    IF_TILEABLE_BOTTOM = 1 << 4,
+    IF_TILEABLE = IF_TILEABLE_LEFT | IF_TILEABLE_TOP | IF_TILEABLE_RIGHT | IF_TILEABLE_BOTTOM,
+
+    IF_RETRO = 1 << 5
   };
 
 }

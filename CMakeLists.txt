@@ -26,9 +26,10 @@ pkg_check_modules(FONTCONFIG REQUIRED fontconfig)
 
 file(GLOB_RECURSE C_DEPS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/deps/*.c)
 file(GLOB HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/Optibits/*.hpp)
+file(GLOB M_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/modules/Optibits/*.cpp)
 file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
-add_library(optibits ${C_DEPS_FILES} ${HEADER_FILES} ${SOURCE_FILES})
+add_library(optibits ${C_DEPS_FILES} ${HEADER_FILES} ${SOURCE_FILES} ${M_HEADER_FILES} ${M_SOURCE_FILES})
 
 
 target_compile_features(optibits PUBLIC cxx_std_20)

@@ -27,10 +27,12 @@ namespace Optibits
 
     void resize(int width, int height, Color c = Color::NONE);
 
+
     const Color* data() const { return reinterpret_cast<const Color*>(mPixels.data()); }
     Color* data() { return reinterpret_cast<Color*>(mPixels.data()); }
 
-    const Color& pixel(int x, int y) const { return data()[y * m_width + x]; }
+    const Color& pixel(int x, int y) const { return data()[y * mWidth + x]; }
+    Color& pixel(int x, int y) { return data()[y * mWidth + x]; }
 
     // https://en.wikipedia.org/wiki/Alpha_compositing
     void blendPixel(int x, int y, Color c);
@@ -41,6 +43,6 @@ namespace Optibits
 
     bool operator==(const Bitmap&) const;
 
-  }
+  };
   
 }

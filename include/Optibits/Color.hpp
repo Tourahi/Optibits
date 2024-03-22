@@ -71,6 +71,7 @@ namespace Optibits
     static const Color YELLOW;
     static const Color FUCHSIA;
 
+    std::strong_ordering operator<=>(const Color&) const = default;
   };
 
 }

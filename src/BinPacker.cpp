@@ -74,5 +74,40 @@ void Optibits::BinPacker::addFreeRect(const Rect& rect)
 #endif
 
   mFreeRects.push_back(rect);
-  //mergeNeighbors(static_cast<int>(m_free_rects.size() - 1));
+  mergeNeighbors(static_cast<int>(mFreeRects.size() - 1));
 }
+
+
+const Optibits::Rect* Optibits::BinPacker::bestFreeRect(int width, int height) const
+{
+  if (width > mWidth || height > mHeight)
+    return nullptr;
+
+  const Rect* bestRect = nullptr;
+  int bestWeight = 0;
+
+  for (const Rect& freeRect : mFreeRects) {
+    // (BSSF)
+    int weight = std::min(freeRect.width - width, freeRect.height - height);
+      if (weight < 0) {
+        continue;
+      }
+      if (bestRect == nullptr || weight < bestWeight) {
+        bestRect = &freeRect;
+        bestWeight = weight;
+      }
+  }
+
+  return bestRect;
+}
+
+
+std::shared_ptr<const Optibits::Rect> Optibits::BinPacker::alloc(int width, int height)
+{
+  std::unique_lock lock(mMutex);
+
+  // const Rect* bestRect = 
+
+
+}
+

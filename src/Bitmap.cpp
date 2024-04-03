@@ -199,4 +199,3 @@ Optibits::Bitmap Optibits::applyBorderFlags(unsigned imageFlags, const Bitmap& s
 
   return result;
 }
-

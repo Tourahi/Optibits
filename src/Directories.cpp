@@ -42,4 +42,5 @@ std::string Optibits::userSettingsPath(const std::string& org, const std::string
   const std::unique_ptr<char, decltype(&SDL_free)> guard(settingsPrefix, &SDL_free);
   return relativeFileName.empty() ? settingsPrefix : settingsPrefix + relativeFileName;
 }
+
 #endif

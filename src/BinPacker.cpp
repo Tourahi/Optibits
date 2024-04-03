@@ -106,8 +106,47 @@ std::shared_ptr<const Optibits::Rect> Optibits::BinPacker::alloc(int width, int 
 {
   std::unique_lock lock(mMutex);
 
-  // const Rect* bestRect = 
+  const Rect* bestRect = bestFreeRect(width, height);
 
+  if (bestRect == nullptr)
+    return nullptr;
+
+  std::shared_ptr<const Rect> result(new Rect { bestRect->x, bestRect->y, width, height },
+    [this](const Rect* p) { addFreeRect(*p); });
+
+  Rect newRectRight = *bestRect;
+  Rect newRectBelow = *bestRect;
+
+  if (bestRect->width < bestRect->height) {
+    newRectRight.x += width;
+    newRectRight.width -= width;
+    newRectRight.height = height;
+
+    newRectBelow.y += height;
+    newRectBelow.height -= height;
+
+  }
+  else {
+    newRectRight.x += width;
+    newRectRight.width -= width;
+
+    newRectBelow.y += height;
+    newRectBelow.height -= height;
+    newRectBelow.width = width;
+  }
+
+  removeFreeRect(static_cast<int>(bestRect - mFreeRects.data()));
+
+  lock.unlock();
+
+  if (!newRectBelow.empty()) {
+    addFreeRect(newRectBelow);
+  }
+  if (!newRectRight.empty()) {
+    addFreeRect(newRectRight);
+  }
+
+  return result;
 
 }
 

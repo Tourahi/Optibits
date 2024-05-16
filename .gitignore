@@ -5,3 +5,6 @@
 # CMake files
 /build
 /examples/build
+
+/.cache
+/.ccls-cache

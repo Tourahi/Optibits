@@ -119,4 +119,45 @@ std::string Optibits::Input::idToChar(Key key)
 }
 
 
+Optibits::Key Optibits::Input::charToId(std::string ch)
+{
+  requireSdlVideo();
+
+  SDL_Keycode keycode = SDL_GetKeyFromName(ch.c_str());
+  return keycode == SDLK_UNKNOWN ? NO_BUTTON : Optibits::Key(SDL_GetScancodeFromKey(keycode));
+}
+
+std::string Optibits::Input::keyName(Key key)
+{
+  requireSdlVideo();
+
+  SDL_Keycode keycode = SDL_GetKeyFromScancode(static_cast<SDL_Scancode>(key));
+  return SDL_GetKeyName(keycode);
+}
+
+
+bool Optibits::Input::down(Optibits::Key key)
+{
+  if (key == NO_BUTTON || key >= NUM_BUTTONS) return false;
+
+  return buttonStates[key];
+}
+
+double Optibits::Input::mouseX() const
+{
+  return pimpl->mouseX * pimpl->mouseScaleX + pimpl->mouseOffsetX;
+}
+
+double Optibits::Input::mouseY() const
+{
+  return pimpl->mouseY * pimpl->mouseScaleY + pimpl->mouseOffsetY;
+}
+
+void Optibits::Input::setMousePosition(double x, double y)
+{
+  pimpl->setMousePosition(x, y);
+}
+
+
+
 #endif

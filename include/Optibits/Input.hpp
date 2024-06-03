@@ -32,7 +32,7 @@ namespace Optibits
 
     static std::string gamepadName(int idx);
 
-    static bool isDown(Key key);
+    static bool down(Key key);
 
     static double axis(Key key);
 

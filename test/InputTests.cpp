@@ -14,11 +14,11 @@ class InputTests : public testing::Test
 };
 
 
-TEST_F(InputTests, from_existing_memory)
+TEST_F(InputTests, id_to_char)
 {
   std::string key = Optibits::Input::idToChar(Optibits::KEY_1);
+  std::string key1 = Optibits::Input::idToChar(Optibits::KEY_SPACE);
 
-  GTEST_COUT << key << "\n";
-
-  ASSERT_EQ(key, "2");
+  ASSERT_EQ(key, "1");
+  ASSERT_EQ(key1, " ");
 }

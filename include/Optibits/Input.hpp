@@ -26,6 +26,26 @@ namespace Optibits
 
     ~Input();
 
+    static std::string idToChar(Key key);
+    static Key charToId(std::string ch);
+    static std::string keyName(Key key);
+
+    static std::string gamepadName(int idx);
+
+    static bool isDown(Key key);
+
+    static double axis(Key key);
+
+    double mouseX() const;
+    double mouseY() const;
+
+    void setMousePosition(double x, double y);
+
+
+    void update();
+
+    std::function<void (Key)> onButtonDown, onButtonUp;
+
   }; 
 
 }

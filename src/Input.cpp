@@ -46,9 +46,9 @@ struct Optibits::Input::Impl : private Optibits::Noncopyable
     enum {
       ButtonUp,
       ButtonDown
-    }
+    } type;
     int id = -1;
-  }
+  };
   
   Input& input;
   SDL_Window* window;
@@ -131,6 +131,25 @@ struct Optibits::Input::Impl : private Optibits::Noncopyable
       }
     }
     return false;
+  }
+
+  void dispatchEvents()
+  {
+    for (const InputEvent& event : eventQueue) {
+      switch (event.type) {
+        case InputEvent::ButtonDown:
+          buttonStates[event.id] = true;
+          if (input.onButtonDown)
+            input.onButtonDown(Key(event.id));
+          break;
+        case InputEvent::ButtonUp:
+          buttonStates[event.id] = false;
+          if (input.onButtonUp)
+            input.onButtonUp(Key(event.id));
+          break;
+      }
+    }
+    eventQueue.clear();
   }
 
 

@@ -1,4 +1,6 @@
+#include "Optibits/Keyboard.hpp"
 #include <Optibits/Platform.hpp>
+#include <SDL_events.h>
 
 #if !defined(OPTIBITS_IPHONE)
 
@@ -39,6 +41,14 @@ static array<int, Optibits::NUM_GAMEPADS> gamepadSlots = {-1, -1, -1, -1};
 struct Optibits::Input::Impl : private Optibits::Noncopyable
 {
 
+  struct InputEvent
+  {
+    enum {
+      ButtonUp,
+      ButtonDown
+    }
+    int id = -1;
+  }
   
   Input& input;
   SDL_Window* window;
@@ -87,6 +97,55 @@ struct Optibits::Input::Impl : private Optibits::Noncopyable
       mouseX = x, mouseY = y;
     #endif
   }
+
+  bool feedSdlEvent(const SDL_Event* e)
+  {
+    switch (e->type) {
+      case SDL_KEYDOWN:
+      case SDL_KEYUP: {
+        if (e->key.repeat == 0 && e->key.keysym.scancode <= static_cast<int>(KEY_RANGE_END)) {
+          enqueueEvent(e->key.keysym.scancode, e->type == SDL_KEYDOWN);
+          return true;
+        }
+        break;
+      }
+      case SDL_MOUSEBUTTONDOWN:
+      case SDL_MOUSEBUTTONUP: {
+        if (e->button.button >= 1 && e->button.button <= 3) {
+          enqueueEvent(MS_LEFT + e->button.button - 1, e->type == SDL_MOUSEBUTTONDOWN);
+          return true;
+        }
+      }
+      case SDL_MOUSEWHEEL: {
+        if (e->wheel.y > 0) {
+          enqueueEvent(MS_WHEEL_UP, true);
+          enqueueEvent(MS_WHEEL_UP, false);
+          return true;
+        }
+        else if (e->wheel.y < 0) {
+          enqueueEvent(MS_WHEEL_DOWN, true);
+          enqueueEvent(MS_WHEEL_DOWN, false);
+          return true;
+        }
+        break;
+      }
+    }
+    return false;
+  }
+
+
+private:
+
+  std::vector<InputEvent> eventQueue;
+
+  void enqueueEvent(unsigned id, bool down)
+  {
+    InputEvent event;
+    event.type = down ? InputEvent::ButtonDown : InputEvent::ButtonUp;
+    event.id = id;
+    eventQueue.push_back(event);
+  }
+
 };
 
 std::string Optibits::Input::idToChar(Key key)
@@ -156,6 +215,11 @@ double Optibits::Input::mouseY() const
 void Optibits::Input::setMousePosition(double x, double y)
 {
   pimpl->setMousePosition(x, y);
+}
+
+void Optibits::Input::update()
+{
+  pimpl->updateMousePosition();
 }
 
 

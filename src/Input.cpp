@@ -239,8 +239,7 @@ void Optibits::Input::setMousePosition(double x, double y)
 void Optibits::Input::update()
 {
   pimpl->updateMousePosition();
+  pimpl->dispatchEvents();
 }
-
-
 
 #endif

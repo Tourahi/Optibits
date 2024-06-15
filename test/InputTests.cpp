@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <Optibits/Input.hpp>
+#include <Optibits/common/Exception.hpp>
 #include <Optibits/Keyboard.hpp>
 #include <cstring>
 #include <filesystem>

@@ -20,7 +20,7 @@ namespace Optibits
 
   class OpenGLContext : Noncopyable
   {
-    std::unique_lock<std::mutex> m_lock;
+    std::unique_lock<std::mutex> mLock;
     
   public:
 

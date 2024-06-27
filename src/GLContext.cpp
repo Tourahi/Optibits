@@ -2,8 +2,8 @@
 
 // TODO: MAC/IPHONE
 
-#include <SDL_error.h>
-#include <SDL_video.h>
+#if !defined(GOSU_IS_IPHONE)
+
 #include <stdexcept>
 #include <thread>
 
@@ -51,3 +51,37 @@ namespace
 
   thread_local int currentNestingDepth = 0;
 }
+
+Optibits::OpenGLContext::OpenGLContext(bool renderToWindow)
+{
+  static const auto& window = SDLWindowContext::instance();
+  static std::mutex mutex;
+
+  if (currentNestingDepth == 0)
+    mLock = std::unique_lock(mutex);
+
+  if (renderToWindow) {
+    if (SDL_GL_MakeCurrent(window.window, window.glContext) != 0) {
+      throwSdlErr("Could not set current GL context for rendering to the window");
+    }
+  }
+  else if (currentNestingDepth == 0) {
+    if (SDL_GL_MakeCurrent(nullptr, window.glContext) != 0
+        && SDL_GL_MakeCurrent(window.window, window.glContext) != 0) {
+      throwSdlErr("Could not set current GL context");
+    }
+  }
+
+  ++currentNestingDepth;
+}
+
+
+Optibits::OpenGLContext::~OpenGLContext()
+{
+  --currentNestingDepth;
+
+  if (mLock)
+    SDL_GL_MakeCurrent(nullptr, nullptr);
+}
+
+#endif

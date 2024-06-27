@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <Optibits/Utility.hpp>
+#include <Optibits/GLContext.hpp>
 
 class UtilityTests : public testing::Test
 {

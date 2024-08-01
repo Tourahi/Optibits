@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Optibits/Keyboard.hpp>
 #include <Optibits/Platform.hpp>
 #include <Optibits/Utility.hpp>

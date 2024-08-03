@@ -13,5 +13,5 @@
 #include <Optibits/Timing.hpp>
 #include <Optibits/Utility.hpp>
 #include <Optibits/Version.hpp>
-#include <Optibits/Window.hpp>
+#include <Optibits/OptiWindow.hpp>
 

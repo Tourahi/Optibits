@@ -53,9 +53,14 @@ namespace Optibits
 
   /* Resolution */
   
+  // (in pixels)
   int screenWidth(const OptiWindow* window = nullptr);
   int screenHeight(const OptiWindow* window = nullptr);
-  
+
+  // (in 'points') 
+  int availableWidth(const OptiWindow* window = nullptr);
+  int availableHeight(const OptiWindow* window = nullptr);
+
   /* End Resolution */
 
 }

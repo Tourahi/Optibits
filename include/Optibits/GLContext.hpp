@@ -27,7 +27,8 @@ namespace Optibits
     explicit OpenGLContext(bool renderToWindow = false);
     ~OpenGLContext();
 
-
+#ifndef OPTIBITS_IPHONE
+    static SDL_Window* sharedSdlWindow();
+#endif
   };
-
 }

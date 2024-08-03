@@ -46,7 +46,9 @@ namespace Optibits
     bool resizable() const;
     void setResizable(bool resizable);
 
-
+#ifndef OPTIBITS_IPHONE
+    SDL_Window* sdlWindow();
+#endif
 
 
   };

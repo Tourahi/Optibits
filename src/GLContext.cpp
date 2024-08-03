@@ -84,4 +84,10 @@ Optibits::OpenGLContext::~OpenGLContext()
     SDL_GL_MakeCurrent(nullptr, nullptr);
 }
 
+SDL_Window* Optibits::OpenGLContext::sharedSdlWindow()
+{
+  static const auto& window = SDLWindowContext::instance();
+  return window.window;
+}
+
 #endif

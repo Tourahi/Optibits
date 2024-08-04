@@ -42,6 +42,11 @@ void Optibits::OptiWindow::setResizable(bool resizable)
 }
 
 
+bool Optibits::OptiWindow::resizable() const
+{
+  return mImpl->resizable;
+}
+
 void Optibits::OptiWindow::resize(int width, int height, int fullscreen)
 {
   mImpl->fullscreen = fullscreen;
@@ -52,6 +57,42 @@ void Optibits::OptiWindow::resize(int width, int height, int fullscreen)
   double blackBarWidth = 0;
   double blackBarHeight = 0;
 
+  if (fullscreen) {
+    actualWidth = Optibits::screenWidth();
+    actualHeight = Optibits::screenHeight();
 
+    if (resizable()) {
+      width = actualWidth;
+      height = actualHeight;
+    }
+    else {
+      // scale window to fill the desktop res
+      double scaleX = 1.0 * actualWidth / width;
+      double scaleY = 1.0 * actualHeight / height;
+      scaleFactor = std::min(scaleX, scaleY);
+
+      // add black bars to preserve aspect ratio if needed
+      if (scaleX < scaleY) {
+        blackBarHeight = (actualHeight / scaleX - height) / 2;
+      }
+      else if (scaleY < scaleX) {
+        blackBarWidth = (actualWidth / scaleY - width) / 2;
+      }
+    }
+  }
+  else {
+    int maxWidth = Optibits::availableWidth(this);
+    int maxHeight = Optibits::availableHeight(this);
+
+    if (resizable()) {
+      width = actualWidth = std::min(width, maxWidth);
+      height = actualHeight = std::min(height, maxHeight);
+    }
+    else if (width > maxWidth || height > maxHeight) {
+      scaleFactor = std::min(1.0 * maxWidth / width, 1.0 * maxHeight / height);
+      actualWidth = static_cast<int>(width * scaleFactor);
+      actualHeight = static_cast<int>(height * scaleFactor);
+    }
+  }
 }
 

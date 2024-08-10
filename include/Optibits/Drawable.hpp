@@ -5,15 +5,5 @@
 #include <Optibits/GraphicsBase.hpp>
 #include <Optibits/Utility.hpp>
 // STD
-#include <functional>
+#include <cstdint>
 #include <memory>
-
-namespace Optibits
-{
-  class Viewport : private Noncopyable
-  {
-
-    
-
-  };
-}

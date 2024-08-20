@@ -23,7 +23,7 @@ namespace Optibits
     QM_RENDER_TO_SCREEN,
     QM_RENDER_TO_TEXTURE,
     QM_RENDER_TO_MACRO
-  }
+  };
 
   class Texture;
   class TextChunk;
@@ -35,7 +35,7 @@ namespace Optibits
   struct DrawOp;
   class DrawQueue;
   typedef std::list<Transform> Transforms;
-  typedef std::list<DrawOpQueue> DrawOpQueueStack;
+  typedef std::list<DrawQueue> DrawOpQueueStack;
   class Macro;
 
   struct ArrayVertex
@@ -43,7 +43,7 @@ namespace Optibits
     float texCoords[2];
     std::uint32_t color;
     float vertices[3];
-  }
+  };
 
   template<typename T>
   bool ispToTheleftOfab(T xa, T ya, T xb, T yb, T xp, T yp)

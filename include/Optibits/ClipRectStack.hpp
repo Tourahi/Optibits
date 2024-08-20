@@ -22,5 +22,5 @@ namespace Optibits
     void pop();
 
     const std::optional<Rect>& effectiveRect() const { return mEffectiveRect; }
-  }
+  };
 }

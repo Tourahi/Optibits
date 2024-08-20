@@ -7,8 +7,9 @@ namespace Optibits
 
   class Bitmap;
   class Buffer;
-  class Chanell;
+  class Channel;
   struct Color;
   struct Rect;
+  struct Transform;
   
 }

@@ -47,3 +47,20 @@ Optibits::Texture::Texture(int width, int height, bool retro)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 #endif
 }
+
+
+Optibits::Texture::~Texture()
+{
+  try {
+    const OpenGLContext currentContext;
+    glDeleteTextures(1, &mTexName);
+  } catch (...)
+  {
+
+  }
+}
+
+
+
+
+

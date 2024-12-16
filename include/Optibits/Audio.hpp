@@ -4,7 +4,7 @@
 
 namespace Optibits
 {
-
+  /// Channel class
   class Channel
   {
 
@@ -32,6 +32,6 @@ namespace Optibits
 
   };
 
-  
+
 
 }

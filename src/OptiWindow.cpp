@@ -7,20 +7,20 @@
 struct Optibits::OptiWindow::Impl : private Optibits::Noncopyable
 {
   bool fullscreen = false;
-  bool resizable = false; 
-  bool resizing = false; 
+  bool resizable = false;
+  bool resizing = false;
 
 
   enum {
     CLOSED, OPEN, CLOSING
   } state
-    = CLOSED;
+      = CLOSED;
 
   std::unique_ptr<Input> input;
 };
 
 Optibits::OptiWindow::OptiWindow(int width, int height, unsigned windowFlags, double updateIntrv)
-  : mImpl(new Impl) 
+  : mImpl(new Impl)
 {
 
 }
@@ -94,5 +94,7 @@ void Optibits::OptiWindow::resize(int width, int height, int fullscreen)
       actualHeight = static_cast<int>(height * scaleFactor);
     }
   }
+
+
 }
 

@@ -28,3 +28,109 @@ match_version("MAJ" OPTIBITS_VERSION_MAJ)
 match_version("MIN" OPTIBITS_VERSION_MIN)
 match_version("REV" OPTIBITS_VERSION_REV)
 
+set(OPTIBITS_VERSION_STR "${OPTIBITS_VERSION_MAJ}.${OPTIBITS_VERSION_MIN}")
+
+message(STATUS "Version: ${OPTIBITS_VERSION_STR}")
+
+
+set(OPTIBITS_EXE_NAME optibits CACHE STRING "The name of the executable -> 'optibits'")
+
+set(OPTIBITS_DEFAULT_LIB_NAME liboptibits)
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+  set(OPTIBITS_DEFAULT_LIB_NAME "${OPTIBITS_EXE_NAME}-${OPTIBITS_VERSION_STR}")
+  MESSAGE(STATUS "Linux enjoyer -> ${OPTIBITS_DEFAULT_LIB_NAME}")
+endif()
+
+set(OPTIBITS_LIB_NAME ${OPTIBITS_DEFAULT_LIB_NAME} CACHE STRING "The name of the optibits lib, usually 'liboptibits' or 'optibits'")
+set(OPTIBITS_CONSOLE_EXE_NAME "${OPTIBITS_EXE_NAME}c" CACHE STRING "The name the console version of the exe, usually 'optibitsc'")
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	set(OPTIBITS_X64 TRUE)
+	set(OPTIBITS_TARGET_PLATFORM x64)
+else()
+	set(OPTIBITS_X86 TRUE)
+	set(OPTIBITS_TARGET_PLATFORM x86)
+endif()
+
+# SDL (Simple DirectMedia Layer) providing low-level access to audio, keyboard, mouse, joystick, and graphics hardware
+add_library(optidep::SDL INTERFACE IMPORTED)
+
+# Freetype for font rendering
+add_library(optidep::Freetype INTERFACE IMPORTED)
+
+# Harfbuzz for text shaping, converting Unicode text to glyph indices and positions for proper rendering
+add_library(optidep::Harfbuzz INTERFACE IMPORTED)
+
+# (Open Audio Library) is a cross-platform 3D audio API
+add_library(optidep::OpenAL INTERFACE IMPORTED)
+
+# (libmodplug) for decoding mod-like music formats
+add_library(optidep::Modplug INTERFACE IMPORTED)
+
+# optidep video compression format from the Xiph.Org Foundation
+add_library(optidep::Theora INTERFACE IMPORTED)
+
+# Vorbis audio coding format and a software reference encoder/decoder (codec)
+add_library(optidep::Vorbis INTERFACE IMPORTED)
+
+# Ogg multimedia container format
+add_library(optidep::Ogg INTERFACE IMPORTED)
+
+# Zlib lossless data compression library
+add_library(optidep::Zlib INTERFACE IMPORTED)
+
+# we know this dude
+add_library(optidep::Lua INTERFACE IMPORTED)
+
+# required for enet
+add_definitions(-D HAS_SOCKLEN_T)
+
+# LINUX centric build for now
+
+find_package(SDL3 3.1.3 REQUIRED CONFIG)
+target_include_directories(optidep::SDL INTERFACE ${SDL3_INCLUDE_DIRS})
+target_link_libraries(optidep::SDL INTERFACE ${SDL3_LIBRARIES})
+
+find_package(Freetype REQUIRED)
+target_include_directories(optidep::Freetype INTERFACE ${FREETYPE_INCLUDE_DIRS})
+target_link_libraries(optidep::Freetype INTERFACE ${FREETYPE_LIBRARY})
+
+
+find_package(Harfbuzz REQUIRED)
+target_include_directories(optidep::Harfbuzz INTERFACE ${HARFBUZZ_INCLUDE_DIR})
+target_link_libraries(optidep::Harfbuzz INTERFACE ${HARFBUZZ_LIBRARY})
+
+find_package(OpenAL REQUIRED)
+target_include_directories(optidep::OpenAL INTERFACE ${OPENAL_INCLUDE_DIR})
+target_link_libraries(optidep::OpenAL INTERFACE ${OPENAL_LIBRARY})
+
+find_package(ModPlug REQUIRED)
+target_include_directories(optidep::Modplug INTERFACE ${MODPLUG_INCLUDE_DIR})
+target_link_libraries(optidep::Modplug INTERFACE ${MODPLUG_LIBRARY})
+
+find_package(Theora REQUIRED)
+target_include_directories(optidep::Theora INTERFACE ${THEORA_INCLUDE_DIR})
+target_link_libraries(optidep::Theora INTERFACE ${THEORA_LIBRARY} ${THEORADEC_LIBRARY})
+
+find_package(Vorbis REQUIRED)
+target_include_directories(optidep::Vorbis INTERFACE ${VORBIS_INCLUDE_DIR})
+target_link_libraries(optidep::Vorbis INTERFACE ${VORBISFILE_LIBRARY})
+
+find_package(Ogg REQUIRED)
+target_include_directories(optidep::Ogg INTERFACE ${OGG_INCLUDE_DIR})
+target_link_libraries(optidep::Ogg INTERFACE ${OGG_LIBRARY})
+
+find_package(ZLIB REQUIRED)
+target_include_directories(optidep::Zlib INTERFACE ${ZLIB_INCLUDE_DIRS})
+target_link_libraries(optidep::Zlib INTERFACE ${ZLIB_LIBRARY})
+
+
+if(OPTIBITS_JIT)
+    find_package(LuaJIT REQUIRED)
+    target_include_directories(optidep::Lua INTERFACE ${LUAJIT_INCLUDE_DIR})
+    target_link_libraries(optidep::Lua INTERFACE ${LUAJIT_LIBRARY})
+else()
+    find_package(Lua51 REQUIRED)
+    target_include_directories(optidep::Lua INTERFACE ${LUA_INCLUDE_DIR})
+    target_link_libraries(optidep::Lua INTERFACE ${LUA_LIBRARY})
+endif()

@@ -134,3 +134,20 @@ else()
     target_include_directories(optidep::Lua INTERFACE ${LUA_INCLUDE_DIR})
     target_link_libraries(optidep::Lua INTERFACE ${LUA_LIBRARY})
 endif()
+
+#
+# libopti
+#
+include_directories(
+  BEFORE
+  src
+  src/libs
+  src/modules
+)
+
+
+
+
+
+
+

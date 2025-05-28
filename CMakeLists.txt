@@ -136,7 +136,20 @@ else()
 endif()
 
 #
-# libopti
+# common
+#
+add_library(opti_common STATIC
+  src/common/config.h
+  src/common/tobuild.cpp
+)
+target_link_libraries(opti_common PUBLIC
+  optidep::Lua
+  optidep::SDL
+)
+
+
+#
+# liboptibits
 #
 include_directories(
   BEFORE
@@ -145,9 +158,30 @@ include_directories(
   src/modules
 )
 
+add_library(liboptibits SHARED
+  src/modules/optibits/optibits.h
+  src/modules/optibits/optibits.cpp
+)
+
+set_target_properties(liboptibits PROPERTIES
+  C_VISIBILITY_PRESET hidden
+  CXX_VISIBILITY_PRESET hidden
+  VISIBILITY_INLINES_HIDDEN ON
+  LIBRARY_OUTPUT_NAME "${OPTIBITS_LIB_NAME}")
+set(LIBOPTIBITS_DEPENDENCIES
+  opti_common
+)
+target_link_libraries(liboptibits ${LIBOPTIBITS_DEPENDENCIES})
+
+add_executable(optibits WIN32)
+
+target_sources(optibits PRIVATE src/optibits.cpp)
+target_link_libraries(optibits liboptibits)
+set_target_properties(optibits PROPERTIES
+  C_VISIBILITY_PRESET hidden
+  CXX_VISIBILITY_PRESET hidden
+  VISIBILITY_INLINES_HIDDEN ON
+  OUTPUT_NAME ${OPTIBITS_EXE_NAME})
 
 
-
-
-
-
+install(TARGETS optibits liboptibits)

@@ -1,27 +1,25 @@
-#
-# Copyright (c) 2024-2025 Optibits Development Team
-#
-
-if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
-	message(FATAL_ERROR "Prevented in-tree build.")
-endif()
-
 cmake_minimum_required(VERSION 3.16)
 
 project(optibits)
 
-set(CMAKE_MODULE_PATH "${optibits_SOURCE_DIR}/extra/cmake" ${CMAKE_MODULE_PATH})
-set(CMAKE_POSITION_INDEPENDENT_CODE TRUE) # Needed for shared libs on Linux. (-fPIC).
-set(CMAKE_CXX_STANDARD 17)
+# Enforce out-of-source build
+if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
+    message(FATAL_ERROR "Prevented in-tree build.")
+endif()
 
-# Extract version.h
+# Basic CMake settings
+set(CMAKE_MODULE_PATH "${optibits_SOURCE_DIR}/extra/cmake" ${CMAKE_MODULE_PATH})
+set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+set(CMAKE_CXX_STANDARD 17)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# Extract version from version.h
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/src/common/version.h OPTIBITS_VERSION_FILE_BLOB)
 
-# Extract one of OPTIBITS_VERSION_MAJ/MIN/REV
 function(match_version ARG_STR OUT_VAR)
-  string(REGEX MATCH "VERSION_${ARG_STR} = ([0-9]+);" TMP_VER "${OPTIBITS_VERSION_FILE_BLOB}")
-  string(REGEX MATCH "[0-9]+" TMP_VER "${TMP_VER}")
-  set(${OUT_VAR} ${TMP_VER} PARENT_SCOPE)
+    string(REGEX MATCH "VERSION_${ARG_STR} = ([0-9]+);" TMP_VER "${OPTIBITS_VERSION_FILE_BLOB}")
+    string(REGEX MATCH "[0-9]+" TMP_VER "${TMP_VER}")
+    set(${OUT_VAR} ${TMP_VER} PARENT_SCOPE)
 endfunction()
 
 match_version("MAJ" OPTIBITS_VERSION_MAJ)
@@ -29,28 +27,29 @@ match_version("MIN" OPTIBITS_VERSION_MIN)
 match_version("REV" OPTIBITS_VERSION_REV)
 
 set(OPTIBITS_VERSION_STR "${OPTIBITS_VERSION_MAJ}.${OPTIBITS_VERSION_MIN}")
-
 message(STATUS "Version: ${OPTIBITS_VERSION_STR}")
 
-
-set(OPTIBITS_EXE_NAME optibits CACHE STRING "The name of the executable -> 'optibits'")
-
+# Platform-related naming
+set(OPTIBITS_EXE_NAME optibits CACHE STRING "The name of the executable")
 set(OPTIBITS_DEFAULT_LIB_NAME liboptibits)
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-  set(OPTIBITS_DEFAULT_LIB_NAME "${OPTIBITS_EXE_NAME}-${OPTIBITS_VERSION_STR}")
-  MESSAGE(STATUS "Linux enjoyer -> ${OPTIBITS_DEFAULT_LIB_NAME}")
+    set(OPTIBITS_DEFAULT_LIB_NAME "${OPTIBITS_EXE_NAME}-${OPTIBITS_VERSION_STR}")
+    message(STATUS "Linux enjoyer -> ${OPTIBITS_DEFAULT_LIB_NAME}")
 endif()
+set(OPTIBITS_LIB_NAME ${OPTIBITS_DEFAULT_LIB_NAME} CACHE STRING "")
+set(OPTIBITS_CONSOLE_EXE_NAME "${OPTIBITS_EXE_NAME}c" CACHE STRING "")
 
-set(OPTIBITS_LIB_NAME ${OPTIBITS_DEFAULT_LIB_NAME} CACHE STRING "The name of the optibits lib, usually 'liboptibits' or 'optibits'")
-set(OPTIBITS_CONSOLE_EXE_NAME "${OPTIBITS_EXE_NAME}c" CACHE STRING "The name the console version of the exe, usually 'optibitsc'")
-
+# Architecture check
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	set(OPTIBITS_X64 TRUE)
-	set(OPTIBITS_TARGET_PLATFORM x64)
+    set(OPTIBITS_X64 TRUE)
+    set(OPTIBITS_TARGET_PLATFORM x64)
 else()
-	set(OPTIBITS_X86 TRUE)
-	set(OPTIBITS_TARGET_PLATFORM x86)
+    set(OPTIBITS_X86 TRUE)
+    set(OPTIBITS_TARGET_PLATFORM x86)
 endif()
+
+
+message(STATUS "Target platform: ${LOVE_TARGET_PLATFORM}")
 
 # SDL (Simple DirectMedia Layer) providing low-level access to audio, keyboard, mouse, joystick, and graphics hardware
 add_library(optidep::SDL INTERFACE IMPORTED)
@@ -125,24 +124,19 @@ target_include_directories(optidep::Zlib INTERFACE ${ZLIB_INCLUDE_DIRS})
 target_link_libraries(optidep::Zlib INTERFACE ${ZLIB_LIBRARY})
 
 
-if(OPTIBITS_JIT)
-    find_package(LuaJIT REQUIRED)
-    target_include_directories(optidep::Lua INTERFACE ${LUAJIT_INCLUDE_DIR})
-    target_link_libraries(optidep::Lua INTERFACE ${LUAJIT_LIBRARY})
-else()
-    find_package(Lua51 REQUIRED)
-    target_include_directories(optidep::Lua INTERFACE ${LUA_INCLUDE_DIR})
-    target_link_libraries(optidep::Lua INTERFACE ${LUA_LIBRARY})
-endif()
+
+set(DISABLE_WARNING_FLAG -w)
 
 #
 # common
 #
-add_library(opti_common STATIC
+add_library(optibits_common STATIC
   src/common/config.h
-  src/common/tobuild.cpp
+  src/common/int.h
+  src/common/types.cpp
+  src/common/types.h
 )
-target_link_libraries(opti_common PUBLIC
+target_link_libraries(optibits_common PUBLIC
   optidep::Lua
   optidep::SDL
 )
@@ -154,25 +148,28 @@ target_link_libraries(opti_common PUBLIC
 include_directories(
   BEFORE
   src
-  src/libs
+  src/libraries
   src/modules
 )
 
+
 add_library(liboptibits SHARED
-  src/modules/optibits/optibits.h
   src/modules/optibits/optibits.cpp
 )
-
 set_target_properties(liboptibits PROPERTIES
   C_VISIBILITY_PRESET hidden
   CXX_VISIBILITY_PRESET hidden
   VISIBILITY_INLINES_HIDDEN ON
   LIBRARY_OUTPUT_NAME "${OPTIBITS_LIB_NAME}")
 set(LIBOPTIBITS_DEPENDENCIES
-  opti_common
+  optibits_common
 )
 target_link_libraries(liboptibits ${LIBOPTIBITS_DEPENDENCIES})
 
+
+#
+# optibits (executable)
+#
 add_executable(optibits WIN32)
 
 target_sources(optibits PRIVATE src/optibits.cpp)
@@ -182,6 +179,3 @@ set_target_properties(optibits PROPERTIES
   CXX_VISIBILITY_PRESET hidden
   VISIBILITY_INLINES_HIDDEN ON
   OUTPUT_NAME ${OPTIBITS_EXE_NAME})
-
-
-install(TARGETS optibits liboptibits)

@@ -135,6 +135,8 @@ add_library(optibits_common STATIC
   src/common/int.h
   src/common/types.cpp
   src/common/types.h
+  src/common/Knot.h
+  src/common/Knot.cpp
 )
 target_link_libraries(optibits_common PUBLIC
   optidep::Lua
@@ -148,7 +150,7 @@ target_link_libraries(optibits_common PUBLIC
 include_directories(
   BEFORE
   src
-  src/libraries
+  src/libs
   src/modules
 )
 

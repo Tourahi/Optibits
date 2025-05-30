@@ -4,7 +4,7 @@
 
 #include "types.h"
 
-#define ID_UNINITIALIZED 0
+#define TYPES_ID_UNINITIALIZED 0
 
 namespace opti
 {
@@ -14,7 +14,7 @@ namespace opti
   Type::Type(const char *name, Type *parent)
   : name(name),
     parent(parent),
-    id(ID_UNINITIALIZED),
+    id(TYPES_ID_UNINITIALIZED),
     initialized(false)
   {}
 

@@ -133,6 +133,7 @@ set(DISABLE_WARNING_FLAG -w)
 add_library(optibits_common STATIC
   src/common/config.h
   src/common/int.h
+  src/common/Optional.h
   src/common/types.cpp
   src/common/types.h
   src/common/Knot.h

@@ -114,6 +114,7 @@
 #	endif
 #else
 #	define OPTI_ENABLE_DEBUG
+#	define OPTI_ENABLE_TEST
 #endif
 
 // Check we have a sane configuration

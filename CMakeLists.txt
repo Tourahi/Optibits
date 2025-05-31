@@ -155,6 +155,7 @@ include_directories(
   src
   src/libs
   src/modules
+  src/spec
 )
 
 
@@ -184,3 +185,16 @@ set_target_properties(optibits PROPERTIES
   CXX_VISIBILITY_PRESET hidden
   VISIBILITY_INLINES_HIDDEN ON
   OUTPUT_NAME ${OPTIBITS_EXE_NAME})
+
+
+#
+# tests
+#
+
+# (executable)
+add_executable(tests
+  src/spec/test_optional.cpp
+  src/spec/test_main.cpp
+)
+enable_testing()
+add_test(NAME Tests COMMAND tests)

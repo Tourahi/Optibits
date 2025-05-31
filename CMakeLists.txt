@@ -137,6 +137,8 @@ add_library(optibits_common STATIC
   src/common/types.h
   src/common/Knot.h
   src/common/Knot.cpp
+  src/common/memory.h
+  src/common/memory.cpp
 )
 target_link_libraries(optibits_common PUBLIC
   optidep::Lua

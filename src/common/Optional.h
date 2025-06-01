@@ -2,7 +2,7 @@
 #ifndef OPTI_OPTIONAL_H
 #define OPTI_OPTIONAL_H
 
-namespace Optional
+namespace opti
 {
 
   template <typename T>

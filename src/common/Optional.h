@@ -22,9 +22,9 @@ namespace opti
         hasValue(true)
     {}
 
-    void set(T value)
+    void set(T val)
     {
-      value = value;
+      value = val;
       hasValue = true;
     }
 

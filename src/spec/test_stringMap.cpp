@@ -76,12 +76,17 @@ UTEST(StringMapTests, CollisionHandling) {
 
 UTEST(StringMapTests, Entries) {
   opti::StringMap<unsigned int, 3>::Entry entries[] = {
-    {"key1", 10}
+    {"key1", 10},
+    {"key2", 440}
   };
 
-  opti::StringMap<unsigned int, 3> map(entries, 20);
+  opti::StringMap<unsigned int, 3> map(entries, sizeof(entries));
 
   unsigned int value1 = 0;
   ASSERT_TRUE(map.find("key1", value1));
   ASSERT_EQ(10, value1);
+
+  unsigned int value2 = 0;
+  ASSERT_TRUE(map.find("key2", value2));
+  ASSERT_EQ(440, value2);
 }

@@ -64,7 +64,7 @@ add_library(optidep::Harfbuzz INTERFACE IMPORTED)
 add_library(optidep::OpenAL INTERFACE IMPORTED)
 
 # (libmodplug) for decoding mod-like music formats
-add_library(optidep::Modplug INTERFACE IMPORTED)
+add_library(optidep::Modplug INTERFACE IMPORTED)#include "StringMap.h"
 
 # optidep video compression format from the Xiph.Org Foundation
 add_library(optidep::Theora INTERFACE IMPORTED)
@@ -140,6 +140,8 @@ add_library(optibits_common STATIC
   src/common/Knot.cpp
   src/common/memory.h
   src/common/memory.cpp
+  src/common/StringMap.h
+  src/common/StringMap.cpp
 )
 target_link_libraries(optibits_common PUBLIC
   optidep::Lua

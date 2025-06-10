@@ -14,7 +14,6 @@ extern template class std::vector<std::string>;
 namespace opti
 {
 
-
   template<typename T, unsigned int SIZE>
   class StringMap
   {
@@ -149,6 +148,37 @@ namespace opti
         return false;
       }
   };
+
+#define STRINGMAP_DECLARE(type) \
+bool getConstant(const char *in, type &out); \
+bool getConstant(type in, const char *&out); \
+std::vector<std::string> getConstants(type); \
+
+#define STRINGMAP_BEGIN(type, count, name) \
+static StringMap<type, count>::Entry name##Entries[] =
+
+#define STRINGMAP_END(type, count, name) \
+; \
+static StringMap<type, count> name##s(name##Entries, sizeof(name##Entries)); \
+bool getConstant(const char *in, type &out) { return name##s.find(in, out); } \
+bool getConstant(type in, const char *&out) { return name##s.find(in, out); } \
+std::vector<std::string> getConstants(type) { return name##s.getNames(); }
+
+#define STRINGMAP_CLASS_DECLARE(type) \
+static bool getConstant(const char *in, type &out); \
+static bool getConstant(type in, const char *&out); \
+static std::vector<std::string> getConstants(type); \
+
+#define STRINGMAP_CLASS_BEGIN(classname, type, count, name) \
+static StringMap<type, count>::Entry name##Entries[] =
+
+#define STRINGMAP_CLASS_END(classname, type, count, name) \
+; \
+static StringMap<type, count> name##s(name##Entries, sizeof(name##Entries)); \
+bool classname::getConstant(const char *in, type &out) { return name##s.find(in, out); } \
+bool classname::getConstant(type in, const char *&out) { return name##s.find(in, out); } \
+std::vector<std::string> classname::getConstants(type) { return name##s.getNames(); }
+
 }
 
 #endif

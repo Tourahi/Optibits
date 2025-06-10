@@ -48,8 +48,9 @@ namespace opti
 
         unsigned int n = num / sizeof(Entry);
 
-        for (unsigned int i = 0; i < n; ++i)
+        for (unsigned int i = 0; i < n; ++i) {
           add(entries[i].key, entries[i].value);
+        }
       }
 
       unsigned int hashDjb2(const char *key)

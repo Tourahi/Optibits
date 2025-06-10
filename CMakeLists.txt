@@ -64,7 +64,7 @@ add_library(optidep::Harfbuzz INTERFACE IMPORTED)
 add_library(optidep::OpenAL INTERFACE IMPORTED)
 
 # (libmodplug) for decoding mod-like music formats
-add_library(optidep::Modplug INTERFACE IMPORTED)#include "StringMap.h"
+add_library(optidep::Modplug INTERFACE IMPORTED)
 
 # optidep video compression format from the Xiph.Org Foundation
 add_library(optidep::Theora INTERFACE IMPORTED)
@@ -196,6 +196,7 @@ set_target_properties(optibits PROPERTIES
 # (executable)
 add_executable(tests
   src/spec/test_optional.cpp
+  src/spec/test_stringMap.cpp
   src/spec/test_main.cpp
 )
 enable_testing()

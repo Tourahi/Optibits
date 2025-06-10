@@ -117,7 +117,7 @@ namespace opti
 
         for (unsigned int i = 0; i < MAX; ++i)
         {
-          unsigned int str_i = (str_hash + 1) % MAX;
+          unsigned int str_i = (str_hash + i) % MAX;
 
           if (!records[str_i].set) // linear probing MAGIC
             return false;
@@ -148,9 +148,6 @@ namespace opti
         return false;
       }
   };
-
-
 }
-
 
 #endif

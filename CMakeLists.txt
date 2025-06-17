@@ -142,6 +142,14 @@ add_library(optibits_common STATIC
   src/common/memory.cpp
   src/common/StringMap.h
   src/common/StringMap.cpp
+  src/common/Data.h
+  src/common/Data.cpp
+  src/common/Exception.h
+  src/common/Exception.cpp
+  src/common/Module.h
+  src/common/Module.cpp
+  src/common/delay.h
+  src/common/delay.cpp
 )
 target_link_libraries(optibits_common PUBLIC
   optidep::Lua

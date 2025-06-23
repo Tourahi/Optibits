@@ -31,7 +31,7 @@ namespace opti
        * Gets the name of the module. This is used in case of errors
        * and other messages.
        *
-       * @return The full name of the module, eg. love.graphics.opengl.
+       * @return The full name of the module, eg. opti.graphics.opengl.
        **/
       const char *getName() const { return name.c_str(); }
 

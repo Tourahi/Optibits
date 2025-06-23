@@ -102,14 +102,13 @@ namespace opti
     ModuleType mtype = instance->getModuleType();
 
     if (mtype != M_UNKNOWN)
-	{
+    {
       if (instances[mtype] != nullptr)
       {
-        printf("[Module::registerInstance] Warning: overwriting module instance %s with new instance %s\n",
-          instances[mtype]->getName(), instance->getName());
+        printf("[Module::registerInstance] Warning: overwriting module instance %s with new instance %s\n", instances[mtype]->getName(), instance->getName());
       }
 
       instances[mtype] = instance;
-	}
+    }
   }
 }

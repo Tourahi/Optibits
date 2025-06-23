@@ -53,18 +53,18 @@ namespace opti
 
   enum Acquire
   {
-    RETAIN,
-    NORETAIN,
+    TIE,
+    NOTIE,
   };
 
   template <typename T>
   class StrongRef
   {
     public:
-      StrongRef(T *knot, Acquire acquire = Acquire::RETAIN)
+      StrongRef(T *knot, Acquire acquire = Acquire::TIE)
         : knot(knot)
       {
-        if (knot && acquire == Acquire::RETAIN) knot->tie();
+        if (knot && acquire == Acquire::TIE) knot->tie();
       }
 
       StrongRef(const StrongRef &other)
@@ -84,9 +84,9 @@ namespace opti
         if (knot) knot->release();
       }
 
-      void set(T *knt, Acquire acquire = Acquire::RETAIN)
+      void set(T *knt, Acquire acquire = Acquire::TIE)
       {
-        if (knt && acquire == Acquire::RETAIN) knt->retain();
+        if (knt && acquire == Acquire::TIE) knt->tie();
         if (knot) knot->release();
         knot = knt;
       }

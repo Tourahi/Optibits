@@ -49,7 +49,7 @@ else()
 endif()
 
 
-message(STATUS "Target platform: ${LOVE_TARGET_PLATFORM}")
+message(STATUS "Target platform: ${OPTIBITS_TARGET_PLATFORM}")
 
 # SDL (Simple DirectMedia Layer) providing low-level access to audio, keyboard, mouse, joystick, and graphics hardware
 add_library(optidep::SDL INTERFACE IMPORTED)
@@ -150,6 +150,8 @@ add_library(optibits_common STATIC
   src/common/Module.cpp
   src/common/delay.h
   src/common/delay.cpp
+  src/common/Variant.cpp
+  src/common/Variant.h
 )
 target_link_libraries(optibits_common PUBLIC
   optidep::Lua

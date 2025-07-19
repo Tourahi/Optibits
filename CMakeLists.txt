@@ -131,31 +131,32 @@ set(DISABLE_WARNING_FLAG -w)
 # common
 #
 add_library(optibits_common STATIC
-  src/common/config.h
-  src/common/int.h
-  src/common/Optional.h
-  src/common/types.cpp
-  src/common/types.h
-  src/common/Knot.h
-  src/common/Knot.cpp
-  src/common/memory.h
-  src/common/memory.cpp
-  src/common/StringMap.h
-  src/common/StringMap.cpp
-  src/common/Data.h
-  src/common/Data.cpp
-  src/common/Exception.h
-  src/common/Exception.cpp
-  src/common/Module.h
-  src/common/Module.cpp
-  src/common/delay.h
-  src/common/delay.cpp
-  src/common/Variant.cpp
-  src/common/Variant.h
+    src/common/config.h
+    src/common/int.h
+    src/common/Optional.h
+    src/common/types.cpp
+    src/common/types.h
+    src/common/Knot.h
+    src/common/Knot.cpp
+    src/common/memory.h
+    src/common/memory.cpp
+    src/common/StringMap.h
+    src/common/StringMap.cpp
+    src/common/Data.h
+    src/common/Data.cpp
+    src/common/Exception.h
+    src/common/Exception.cpp
+    src/common/Module.h
+    src/common/Module.cpp
+    src/common/delay.h
+    src/common/delay.cpp
+    src/common/Variant.cpp
+    src/common/Variant.h
+    src/common/Reference.h
 )
 target_link_libraries(optibits_common PUBLIC
-  optidep::Lua
-  optidep::SDL
+    optidep::Lua
+    optidep::SDL
 )
 
 
@@ -163,24 +164,24 @@ target_link_libraries(optibits_common PUBLIC
 # liboptibits
 #
 include_directories(
-  BEFORE
-  src
-  src/libs
-  src/modules
-  src/spec
+    BEFORE
+    src
+    src/libs
+    src/modules
+    src/spec
 )
 
 
 add_library(liboptibits SHARED
-  src/modules/optibits/optibits.cpp
+    src/modules/optibits/optibits.cpp
 )
 set_target_properties(liboptibits PROPERTIES
-  C_VISIBILITY_PRESET hidden
-  CXX_VISIBILITY_PRESET hidden
-  VISIBILITY_INLINES_HIDDEN ON
-  LIBRARY_OUTPUT_NAME "${OPTIBITS_LIB_NAME}")
+    C_VISIBILITY_PRESET hidden
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
+    LIBRARY_OUTPUT_NAME "${OPTIBITS_LIB_NAME}")
 set(LIBOPTIBITS_DEPENDENCIES
-  optibits_common
+    optibits_common
 )
 target_link_libraries(liboptibits ${LIBOPTIBITS_DEPENDENCIES})
 
@@ -193,10 +194,10 @@ add_executable(optibits WIN32)
 target_sources(optibits PRIVATE src/optibits.cpp)
 target_link_libraries(optibits liboptibits)
 set_target_properties(optibits PROPERTIES
-  C_VISIBILITY_PRESET hidden
-  CXX_VISIBILITY_PRESET hidden
-  VISIBILITY_INLINES_HIDDEN ON
-  OUTPUT_NAME ${OPTIBITS_EXE_NAME})
+    C_VISIBILITY_PRESET hidden
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
+    OUTPUT_NAME ${OPTIBITS_EXE_NAME})
 
 
 #
@@ -205,9 +206,9 @@ set_target_properties(optibits PROPERTIES
 
 # (executable)
 add_executable(tests
-  src/spec/test_optional.cpp
-  src/spec/test_stringMap.cpp
-  src/spec/test_main.cpp
+    src/spec/test_optional.cpp
+    src/spec/test_stringMap.cpp
+    src/spec/test_main.cpp
 )
 enable_testing()
 add_test(NAME Tests COMMAND tests)

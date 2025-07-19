@@ -4,6 +4,8 @@
 
 # CMake files
 /build
+/ref
+/.idea
 /examples/build
 
 /.cache

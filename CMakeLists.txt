@@ -155,6 +155,9 @@ add_library(optibits_common STATIC
     src/common/Variant.cpp
     src/common/Variant.h
     src/common/Reference.h
+    src/common/Reference.cpp
+    src/common/runtime.cpp
+    src/common/runtime.h
 )
 target_link_libraries(optibits_common PUBLIC
     optidep::Lua

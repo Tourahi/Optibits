@@ -171,6 +171,7 @@ namespace opti
         lua_pop(L, 1);
         return result;
     }
+
     int luax_checkintflag(lua_State *L, int table_index, const char *key) {
         lua_getfield(L, table_index, key);
 
@@ -184,7 +185,5 @@ namespace opti
         lua_pop(L, 1);
         return result;
     }
-
-
 
 }

@@ -45,6 +45,25 @@ UTEST(LuaxIsArrayOfTables, BasicCases) {
     lua_pop(L, 1);
 }
 
+UTEST(LuaxBoolFlag, BasicCases) {
+    lua_State *L = luaL_newstate();
+
+    lua_newtable(L);
+
+    ASSERT_EQ(opti::luax_boolflag(L, -1, "missing", false), false);
+
+    lua_pushinteger(L, true);
+    lua_setfield(L, -2, "boolkey");
+    ASSERT_EQ(opti::luax_boolflag(L, -1, "boolkey", false), true);
+
+    lua_pushinteger(L, false);
+    lua_setfield(L, -2, "falsekey");
+    ASSERT_EQ(opti::luax_boolflag(L, -1, "falsekey", false), true);
+
+    lua_pushnil(L);
+    lua_setfield(L, -2, "nilkey");
+    ASSERT_EQ(opti::luax_boolflag(L, -1, "nilkey", true), true);
+}
 
 UTEST(LuaxIntFlag, BasicCases) {
     lua_State *L = luaL_newstate();
@@ -64,4 +83,24 @@ UTEST(LuaxIntFlag, BasicCases) {
     lua_pushnil(L);
     lua_setfield(L, -2, "nilkey");
     ASSERT_EQ(opti::luax_intflag(L, -1, "nilkey", 7), 7);
+}
+
+UTEST(LuaxNumberFlag, BasicCases) {
+    lua_State *L = luaL_newstate();
+
+    lua_newtable(L);
+
+    ASSERT_EQ(opti::luax_numberflag(L, -1, "missing", 3.14), 3.14);
+
+    lua_pushnumber(L, 2.71);
+    lua_setfield(L, -2, "numkey");
+    ASSERT_EQ(opti::luax_numberflag(L, -1, "numkey", 0.0), 1.0);
+
+    lua_pushnumber(L, 0.0);
+    lua_setfield(L, -2, "zerokey");
+    ASSERT_EQ(opti::luax_numberflag(L, -1, "zerokey", 1.0), 0.0);
+
+    lua_pushnil(L);
+    lua_setfield(L, -2, "nilkey");
+    ASSERT_EQ(opti::luax_numberflag(L, -1, "nilkey", 1.618), 1.618);
 }

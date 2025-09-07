@@ -163,6 +163,15 @@ namespace opti
   void luax_pushpointerasstring(lua_State *L, const void *pointer);
 
 
+  /**
+   * Flags retrieval functions.
+   */
+  bool luax_boolflag(lua_State *L, int table_index, const char *key, bool defaultValue);
+  int luax_intflag(lua_State *L, int table_index, const char *key, int defaultValue);
+  double luax_numberflag(lua_State *L, int table_index, const char *key, double defaultValue);
+  bool luax_checkboolflag(lua_State *L, int table_index, const char *key);
+  int luax_checkintflag(lua_State *L, int table_index, const char *key);
+
 
   /**
    * Gets whether the value at idx is an array of tables.

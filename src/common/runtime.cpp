@@ -115,4 +115,76 @@ namespace opti
 	    lua_pushlstring(L, str, sizeof(void *));
     }
 
+    bool luax_boolflag(lua_State *L, int table_index, const char *key, bool defaultValue) {
+        lua_getfield(L, table_index, key);
+
+        bool result;
+        if (lua_isnoneornil(L, -1))
+            result = defaultValue;
+        else
+            result = lua_toboolean(L, -1) != 0;
+
+        lua_pop(L, 1);
+        return result;
+    }
+
+
+    int luax_intflag(lua_State *L, int table_index, const char *key, int defaultValue) {
+        lua_getfield(L, table_index, key);
+
+        int result;
+
+        if (lua_isnoneornil(L, -1))
+            result = defaultValue;
+        else
+            result = static_cast<int>(lua_tointeger(L, -1)) != 0;
+
+        lua_pop(L, 1);
+        return result;
+    }
+
+
+    double luax_numberflag(lua_State *L, int table_index, const char *key, double defaultValue) {
+        lua_getfield(L, table_index, key);
+
+        double result;
+
+        if (lua_isnoneornil(L, -1))
+            result = defaultValue;
+        else
+            result = lua_tonumber(L, -1) != 0;
+
+        lua_pop(L, 1);
+        return result;
+    }
+
+    bool luax_checkboolflag(lua_State *L, int table_index, const char *key) {
+        lua_getfield(L, table_index, key);
+
+        bool result = false;
+        if (lua_type(L, -1) != LUA_TBOOLEAN) {
+            std::string error = "expected boolean field '" + std::string(key) + "' in table";
+            return luaL_argerror(L, table_index, error.c_str());
+        }
+
+        result = luax_toboolean(L, 1);
+        lua_pop(L, 1);
+        return result;
+    }
+    int luax_checkintflag(lua_State *L, int table_index, const char *key) {
+        lua_getfield(L, table_index, key);
+
+        int result = 0;
+        if (!lua_isnumber(L, -1)) {
+            std::string error = "expected integer field '" + std::string(key) + "' in table";
+            return luaL_argerror(L, table_index, error.c_str());
+        }
+
+        result = static_cast<int>(luaL_checkinteger(L, 1));
+        lua_pop(L, 1);
+        return result;
+    }
+
+
+
 }

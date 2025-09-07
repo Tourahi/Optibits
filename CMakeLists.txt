@@ -123,7 +123,9 @@ find_package(ZLIB REQUIRED)
 target_include_directories(optidep::Zlib INTERFACE ${ZLIB_INCLUDE_DIRS})
 target_link_libraries(optidep::Zlib INTERFACE ${ZLIB_LIBRARY})
 
-
+find_package(Lua51 REQUIRED)
+target_include_directories(optidep::Lua INTERFACE ${LUA_INCLUDE_DIR})
+target_link_libraries(optidep::Lua INTERFACE ${LUA_LIBRARY})
 
 set(DISABLE_WARNING_FLAG -w)
 
@@ -209,6 +211,8 @@ add_executable(tests
     src/spec/test_optional.cpp
     src/spec/test_stringMap.cpp
     src/spec/test_main.cpp
+    src/spec/test_runtime.cpp
 )
+target_link_libraries(tests ${LIBOPTIBITS_DEPENDENCIES})
 enable_testing()
 add_test(NAME Tests COMMAND tests)

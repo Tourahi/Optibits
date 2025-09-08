@@ -104,3 +104,21 @@ UTEST(LuaxNumberFlag, BasicCases) {
     lua_setfield(L, -2, "nilkey");
     ASSERT_EQ(opti::luax_numberflag(L, -1, "nilkey", 1.618), 1.618);
 }
+
+
+UTEST(LuaxAssertNullError, BasicCases) {
+    lua_State *L = luaL_newstate();
+
+    lua_pushnil(L);
+    lua_pushstring(L, "Error");
+    lua_pushcfunction(L, [](lua_State *L) -> int {
+        return opti::luax_assert_nilerror(L, 1);
+    });
+    lua_insert(L, 1);
+    int status = lua_pcall(L, 2, 1, 0);
+    if (status != 0) {
+        const char *msg = lua_tostring(L, -1);
+        ASSERT_STREQ(msg, "Error");
+    }
+    lua_close(L);
+}

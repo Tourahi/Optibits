@@ -172,6 +172,149 @@ namespace opti
   bool luax_checkboolflag(lua_State *L, int table_index, const char *key);
   int luax_checkintflag(lua_State *L, int table_index, const char *key);
 
+  /**
+   * Like luax_tofloat, but checks that the value is a number.
+   *
+   * @see luax_tofloat
+   */
+  inline float luax_checkfloat(lua_State *L, int idx)
+  {
+    return static_cast<float>(luaL_checknumber(L, idx));
+  }
+
+  inline int luax_toint(lua_State *L, int idx)
+  {
+    return static_cast<int>(lua_tointeger(L, idx));
+  }
+
+  inline int luax_checkint(lua_State *L, int idx)
+  {
+    return static_cast<int>(luaL_checkinteger(L, idx));
+  }
+
+  inline int luax_optint(lua_State *L, int idx, int def)
+  {
+    return static_cast<int>(luaL_optinteger(L, idx, def));
+  }
+
+  inline lua_Number luax_checknumberclamped(lua_State *L, int idx, double minv, double maxv)
+  {
+    return std::min(std::max(luaL_checknumber(L, idx), minv), maxv);
+  }
+
+  inline lua_Number luax_optnumberclamped(lua_State *L, int idx, double minv, double maxv, double def)
+  {
+    return std::min(std::max(luaL_optnumber(L, idx, def), minv), maxv);
+  }
+
+  inline lua_Number luax_checknumberclamped01(lua_State *L, int idx)
+  {
+    return std::min(std::max(luaL_checknumber(L, idx), 0.0), 1.0);
+  }
+
+  inline lua_Number luax_optnumberclamped01(lua_State *L, int idx, double def)
+  {
+    return std::min(std::max(luaL_optnumber(L, idx, def), 0.0), 1.0);
+  }
+
+
+  /**
+   * Require at least 'min' number of items on the stack.
+   * @param L The Lua state.
+   * @param min The minimum number of items on the stack.
+   * @return Zero if conditions are met, otherwise a Lua error (longjmp).
+   **/
+  int luax_assert_argc(lua_State *L, int min);
+
+  /**
+   * Require at least 'min', but more than 'max' items on the stack.
+   * @param L The Lua state.
+   * @param min The minimum number of items on the stack.
+   * @param max The maximum number of items on the stack.
+   * @return Zero if conditions are met, otherwise a Lua error (longjmp).
+   **/
+  int luax_assert_argc(lua_State *L, int min, int max);
+
+  /**
+   * Require that the value at idx is a function.
+   * @param L The Lua state.
+   *@param idx The index on the stack.
+   **/
+  int luax_assert_function(lua_State *L, int idx);
+
+  /**
+   * Require that the value at idx is not nil. If it is, the function throws an
+   * error using an optional error string at idx+1.
+   * @param L The Lua state.
+   * @param idx The index on the stack.
+   **/
+  int luax_assert_nilerror(lua_State *L, int idx);
+
+  /**
+   * Registers all functions in the array l (see luaL_Reg) into the table at the
+   * top of the stack.
+   * Similar to Lua 5.2's luaL_setfuncs without the upvalues, and to Lua 5.1's
+   * luaL_register without the library name.
+   **/
+  void luax_setfuncs(lua_State *L, const luaL_Reg *l);
+
+  /**
+   * Loads a Lua module using the 'require' function. Leaves the return result on
+   * the stack.
+   * @param name The name of the module to require.
+   **/
+  int luax_require(lua_State *L, const char *name);
+
+  /**
+   * Register a module in the opti table. The opti table will be created if it does not exist.
+   * NOTE: The module-object is expected to have a +1 reference count before calling
+   * this function, as it doesn't retain the object itself but Lua will release it
+   * upon garbage collection.
+   * @param L The Lua state.
+   **/
+  int luax_register_module(lua_State *L, const WrappedModule &m);
+
+  /**
+   * Inserts a module with 'name' into the package.preloaded table.
+   * @param f The function to be called when the module is opened.
+   * @param name The name of the module, with 'opti'-prefix, for instance 'opti.graphics'.
+   **/
+  int luax_preload(lua_State *L, lua_CFunction f, const char *name);
+
+  /**
+   * Register a new type.
+   * NOTE: The type is passed by pointer instead of reference because calling va_start
+   * on a reference is undefined behaviour.
+   * @param type The type.
+   * @param ... The list of lists of member functions for the type. (of type luaL_Reg*)
+   **/
+  int luax_register_type(lua_State *L, Type *type, ...);
+
+  /**
+   * Pushes the metatable of the specified type onto the stack.
+  **/
+  void luax_gettypemetatable(lua_State *L, const Type &type);
+
+  /**
+   * Do a table.insert from C
+   * @param L the state
+   * @param tindex the stack index of the table
+   * @param vindex the stack index of the value
+   * @param pos the position to insert it in
+   **/
+  int luax_table_insert(lua_State *L, int tindex, int vindex, int pos = -1);
+
+  /**
+   * Register a new searcher function for package.loaders. This can for instance enable
+   * loading of files through opti.filesystem using standard require.
+   * @param L The Lua state.
+   * @param f The searcher function.
+   * @param pos The position to insert the loader in.
+   **/
+  int luax_register_searcher(lua_State *L, lua_CFunction f, int pos = -1);
+
+
+
 
   /**
    * Gets whether the value at idx is an array of tables.

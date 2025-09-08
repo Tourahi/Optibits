@@ -186,4 +186,53 @@ namespace opti
         return result;
     }
 
+    int luax_assert_argc(lua_State *L, int min) {
+        int argc  = lua_gettop(L);
+        if (argc < min)
+            return luaL_error(L, "Incorrect number of arguments. Got [%d], expected at least [%d]", argc, min);
+        return 0;
+    }
+
+    int luax_assert_argc(lua_State *L, int min, int max) {
+        int argc  = lua_gettop(L);
+        if (argc < min || argc > max)
+            return luaL_error(L, "Incorrect number of arguments. Got [%d], expected [%d-%d]", argc, min, max);
+        return 0;
+    }
+
+    int luax_assert_function(lua_State *L, int idx) {
+        if (!lua_isfunction(L, idx))
+            return luaL_error(L, "Argument must be of type \"function\".");
+        return 0;
+    }
+
+    int luax_assert_nilerror(lua_State *L, int idx) {
+        // allows throwing a custom error if provided
+        if (lua_isnoneornil(L, idx)) {
+            if (lua_isstring(L, ++idx))
+                return luaL_error(L, lua_tostring(L, idx));
+            return luaL_error(L, "assertion failed!");
+        }
+        return 0;
+    }
+
+    void luax_setfuncs(lua_State *L, const luaL_Reg *l) {
+        if (l == nullptr)
+            return;
+        for (; l->name != nullptr; l++) {
+            lua_pushcfunction(L, l->func);
+            lua_setfield(L, -2, l->name);
+        }
+    }
+
+    int luax_require(lua_State *L, const char *name) {
+        lua_getglobal(L, "require");
+        lua_pushstring(L, name);
+        lua_call(L, 1, 1);
+        return 1;
+    }
+
+    int luax_register_module(lua_State *L, const WrappedModule &m) {
+
+    }
 }

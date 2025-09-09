@@ -1,4 +1,7 @@
 /*
+
+    NOTE: This is a modified version of utest.h for personal use.
+
    The latest version of this library is available on GitHub;
    https://github.com/sheredom/utest.h
 */
@@ -81,6 +84,7 @@
 
 #pragma warning(push, 1)
 #endif
+#include <stdarg.h>
 
 #if defined(_MSC_VER) && (_MSC_VER < 1920)
 typedef __int64 utest_int64_t;
@@ -1420,6 +1424,19 @@ static UTEST_INLINE FILE *utest_fopen(const char *filename, const char *mode) {
 #else
   return fopen(filename, mode);
 #endif
+}
+
+static UTEST_INLINE void LOG_INFO(const char *fmt, ...) {
+  enum colours { CYAN };
+  const int use_colours = UTEST_COLOUR_OUTPUT();
+  const char *colours[] = {"\033[36m"};
+
+  va_list args;
+  va_start(args, fmt);
+  printf("%s[ INFO     ]%s ", colours[CYAN], colours[CYAN]);
+  vprintf(fmt, args);
+  va_end(args);
+  printf("\n");
 }
 
 static UTEST_INLINE int utest_main(int argc, const char *const argv[]);

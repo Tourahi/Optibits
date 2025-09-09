@@ -88,7 +88,6 @@ namespace opti
 
         if (index >= SIZE)
         {
-          printf("Constant %s out of bounds with %u!\n", key, index);
           return false;
         }
 

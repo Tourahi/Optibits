@@ -108,7 +108,6 @@ UTEST(LuaxNumberFlag, BasicCases) {
 
 UTEST(LuaxAssertNullError, BasicCases) {
     lua_State *L = luaL_newstate();
-
     lua_pushnil(L);
     lua_pushstring(L, "Error");
     lua_pushcfunction(L, [](lua_State *L) -> int {
@@ -118,6 +117,7 @@ UTEST(LuaxAssertNullError, BasicCases) {
     int status = lua_pcall(L, 2, 1, 0);
     if (status != 0) {
         const char *msg = lua_tostring(L, -1);
+        LOG_INFO("Value: %s", msg);
         ASSERT_STREQ(msg, "Error");
     }
     lua_close(L);

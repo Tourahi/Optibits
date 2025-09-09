@@ -35,6 +35,7 @@ namespace opti
     if (!parent->initialized)
       parent->init();
 
+    // bits inheritance
     bits |= parent->bits;
   }
 

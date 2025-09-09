@@ -235,4 +235,80 @@ namespace opti
     int luax_register_module(lua_State *L, const WrappedModule &m) {
 
     }
+
+    int luax_insist(lua_State *L, int idx, const char *k) {
+
+        // convert to absolut  index if necessary
+        if (idx < 0 && idx > LUA_REGISTRYINDEX)
+            idx += lua_gettop(L) + 1;
+
+        lua_getfield(L, idx, k);
+
+        // create table if necessary
+        if (!lua_istable(L, -1)) {
+            lua_pop(L, 1);
+            lua_newtable(L);
+            lua_pushvalue(L, -1);
+            lua_setfield(L, idx, k);
+        }
+
+        return 1;
+    }
+
+    int luax_insistglobal(lua_State *L, const char *k) {
+        lua_getglobal(L, k);
+
+        if (!lua_istable(L, -1)) {
+            lua_pop(L, 1);
+            lua_newtable(L);
+            lua_pushvalue(L, -1);
+            lua_setglobal(L, k);
+        }
+
+        return 1;
+    }
+
+    int luax_insistopti(lua_State *L, const char *k) {
+        luax_insistglobal(L, "opti");
+        luax_insist(L, -1, k);
+        lua_replace(L, -2); // replace the opti table with the insisted table
+        return 1;
+    }
+
+    int luax_getopti(lua_State *L, const char *k) {
+        lua_getglobal(L, "opti");
+
+        if (!lua_isnil(L, -1)) {
+            lua_getfield(L, -1, k);
+            lua_replace(L, -2);
+        }
+
+        return 1;
+    }
+
+    int luax_insistregistry(lua_State *L, Registry r) {
+        switch (r)
+        {
+        case REGISTRY_MODULES:
+            return luax_insistopti(L, "_modules");
+        case REGISTRY_KNOTS:
+            return luax_insist(L, LUA_REGISTRYINDEX, "_optiknots");
+        default:
+            return luaL_error(L, "Attempted to use invalid registry.");
+        }
+    }
+
+    int luax_getregistry(lua_State *L, Registry r) {
+        switch (r)
+        {
+            case REGISTRY_MODULES:
+                return luax_getopti(L, "_modules");
+            case REGISTRY_KNOTS:
+                lua_getfield(L, LUA_REGISTRYINDEX, "_optiknots");
+                return 1;
+            default:
+                return luaL_error(L, "Attempted to use invalid registry.");
+        }
+    }
+
 }

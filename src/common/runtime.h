@@ -314,6 +314,60 @@ namespace opti
   int luax_register_searcher(lua_State *L, lua_CFunction f, int pos = -1);
 
 
+  /**
+   ****************
+   * insist       *
+   ****************
+   ** /
+
+
+  /**
+   * 'Insist' that a table 'k' exists in the table at idx. Insistence involves that the
+   * table (k) is created if it does not exist in the table at idx. The table at idx must
+   * pre-exist, however. Also note that if a non-table value exists at the specified
+   * location, it will be overwritten with a new table. The insisted table, and only the
+   * insisted table, will be placed on top of the stack.
+   *
+   * @param idx The index on the stack containing a table.
+   * @param k The name of the table we are insisting exist.
+   **/
+  int luax_insist(lua_State *L, int idx, const char *k);
+
+
+  /**
+   * Insist that a global table 'k' exists. See luax_insist.
+   * @param k The name of the table we are insisting exist.
+   **/
+  int luax_insistglobal(lua_State *L, const char *k);
+
+  /**
+   * Insists that a table 'k' exists inside the 'opti' table. See luax_insist.
+   * @param k The name of the table we are insisting exist.
+   **/
+  int luax_insistopti(lua_State *L, const char *k);
+
+  /**
+   * Pushes the table 'k' in the opti table onto the stack. Pushes nil if the
+   * table doesn't exist.
+   * @param k The name of the table we want to get.
+   **/
+  int luax_getopti(lua_State *L, const char *k);
+
+  /**
+   * Gets (creates if needed) the specified Registry, and pushes it into the
+   * stack.
+   * @param L The Lua state.
+   * @param r The Registry to get.
+   **/
+  int luax_insistregistry(lua_State *L, Registry r);
+
+  /**
+   * Gets the specified Registry, and pushes it onto the stack. Pushes nil if the
+   * registry hasn't been created (see luax_insistregistry.)
+   * @param L The Lua state.
+   * @param r The Registry to get.
+   **/
+  int luax_getregistry(lua_State *L, Registry r);
 
 
   /**

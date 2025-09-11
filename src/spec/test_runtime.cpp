@@ -122,3 +122,22 @@ UTEST(LuaxAssertNullError, BasicCases) {
     }
     lua_close(L);
 }
+
+UTEST(LuaxPinnedThread, InsistAndGet) {
+    lua_State *L = luaL_newstate();
+
+    // First call should pin the main thread
+    lua_State *thread1 = opti::luax_insistpinnedthread(L);
+    ASSERT_EQ(thread1, L);
+
+    // Get should return the same thread
+    lua_State *thread2 = opti::luax_getpinnedthread(L);
+    ASSERT_EQ(thread2, L);
+
+    // Insist again should still return the same thread
+    lua_State *thread3 = opti::luax_insistpinnedthread(L);
+    ASSERT_EQ(thread3, L);
+
+    lua_close(L);
+}
+

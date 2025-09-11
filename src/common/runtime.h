@@ -172,6 +172,19 @@ namespace opti
   bool luax_checkboolflag(lua_State *L, int table_index, const char *key);
   int luax_checkintflag(lua_State *L, int table_index, const char *key);
 
+
+  /**
+   * Convert the value at the specified index to an Lua number, and then
+   * convert to a float.
+   *
+   * @param L The Lua state.
+   * @param idx The index on the stack.
+   */
+  inline float luax_tofloat(lua_State *L, int idx)
+  {
+    return static_cast<float>(lua_tonumber(L, idx));
+  }
+
   /**
    * Like luax_tofloat, but checks that the value is a number.
    *
@@ -315,6 +328,103 @@ namespace opti
 
 
   /**
+   * Pushes a Lua representation of the given knot onto the stack, creating and
+   * storing the Lua representation in a weak table if it doesn't exist yet.
+   * NOTE: The knot will be retained by Lua and released upon garbage collection.
+   * @param L The Lua state.
+   * @param type The type information of the knot.
+   * @param knot The pointer to the actual knot.
+   **/
+  void luax_pushtype(lua_State *L, opti::Type &type, opti::Knot *knot);
+
+  template <typename T>
+  void luax_pushtype(lua_State *L, T *knot)
+  {
+	  luax_pushtype(L, T::type, knot);
+  }
+
+  template <typename T>
+  void luax_pushtype(lua_State *L, StrongRef<T> &knot)
+  {
+	  luax_pushtype(L, T::type, knot);
+  }
+
+  /**
+   * Creates a new Lua representation of the given knot *without* checking if it
+   * exists yet, and *without* storing it in a weak table.
+   * This should only be used when performance is an extreme concern and the
+   * knot is not ever expected to be pushed to Lua again, as it prevents the
+   * Lua-side knots from working in some cases when used as keys in tables.
+   * NOTE: The knot will be retained by Lua and released upon garbage collection.
+   * @param L The Lua state.
+   * @param type The type information of the knot.
+   * @param knot The pointer to the actual knot.
+   **/
+  void luax_rawnewtype(lua_State *L, opti::Type &type, opti::Knot *knot);
+
+  /**
+   * Stores the value at the given index on the stack into a Variant object.
+   */
+  OPTI_EXPORT Variant luax_checkvariant(lua_State *L, int idx, bool allowuserdata = true, std::set<const void*> *tableSet = nullptr);
+
+  /**
+   * Pushes the contents of the given Variant index onto the stack.
+   */
+  OPTI_EXPORT void luax_pushvariant(lua_State *L, const Variant &v);
+
+  /**
+   * Checks whether the value at idx is a certain type.
+   * @param L The Lua state.
+   * @param idx The index on the stack.
+   * @param type The type to check for.
+   * @return True if the value is Proxy of the specified type, false otherwise.
+   **/
+  bool luax_istype(lua_State *L, int idx, opti::Type &type);
+
+  /**
+   * Gets the function love.module.function and puts it on top of the stack (alone). If the
+   * love table, the module, or the function does not exist, an error is returned.
+   * @return An error if nonexistent, or 1 if successful.
+   **/
+  int luax_getfunction(lua_State *L, const char *module, const char *function);
+
+  /**
+   * Converts an object into another object by the specified function love.module.function.
+   * The conversion function must accept a single object of the relevant type as a parameter,
+   * and returnone value. If the function does not exist (see luax_getfunction), an error is returned.
+   *
+   * Note that the initial object at idx is replaced by the new object.
+   *
+   * @param L The Lua state.
+   * @param idx The index on the stack.
+   * @param module The module in the love table.
+   * @param function The function in the module.
+   **/
+  int luax_convobj(lua_State *L, int idx, const char *module, const char *function);
+
+  /**
+   * Converts an object into another object by the specified function love.module.function.
+   * The conversion function must accept a single object of the relevant type as its first parameter,
+   * and return one value. If the function does not exist (see luax_getfunction), an error is returned.
+   *
+   * Note that the initial object at idx is replaced by the new object.
+   *
+   * @param L The Lua state.
+   * @param idxs An array of indices on the stack.
+   * @param n How many arguments are being passed.
+   * @param module The module in the love table.
+   * @param function The function in the module.
+   **/
+  int luax_convobj(lua_State *L, const int idxs[], int n, const char *module, const char *function);
+  int luax_convobj(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function);
+
+  // pcall versions of the above
+  int luax_pconvobj(lua_State *L, int idx, const char *module, const char *function);
+  int luax_pconvobj(lua_State *L, const int idxs[], int n, const char *module, const char *function);
+  int luax_pconvobj(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function);
+
+
+  /**
    ****************
    * insist       *
    ****************
@@ -371,9 +481,25 @@ namespace opti
 
 
   /**
-   * Gets whether the value at idx is an array of tables.
+ * Gets (and pins if needed) a "pinned" Lua thread (coroutine) in the specified
+ * Lua state. This will usually be the main Lua thread, unless the first call
+ * to this function for a specific Lua state is made from within a coroutine.
+ * NOTE: This does not push anything to the stack.
+ **/
+  lua_State *luax_insistpinnedthread(lua_State *L);
+
+  /**
+   * Gets a "pinned" Lua thread (coroutine) in the specified Lua state. This will
+   * usually be the main Lua thread. This can be used to access global variables
+   * in a specific Lua state without needing another alive lua_State value.
+   * PRECONDITION: luax_insistpinnedthread must have been called on a lua_State
+   * value corresponding to the Lua state which will be used with this function.
+   * NOTE: This does not push anything to the stack.
    **/
-  bool luax_isarrayoftables(lua_State *L, int index);
+  lua_State *luax_getpinnedthread(lua_State *L);
+
+
+  Type *luax_type(lua_State *L, int idx);
 
 }
 

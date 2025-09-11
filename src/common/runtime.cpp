@@ -19,6 +19,71 @@
 
 namespace opti
 {
+    // Keys
+    static const char *MAIN_THREAD_KEY = "_opti_mainthread";
+
+    static int w__gc(lua_State *L) {
+        Proxy *p = static_cast<Proxy *>(lua_touserdata(L, 1));
+        if (p->knot != nullptr) {
+            p->knot->release();
+            p->knot = nullptr;
+        }
+        return 0;
+    }
+
+    static int w__tostring(lua_State *L) {
+        Proxy *p = static_cast<Proxy *>(lua_touserdata(L, 1));
+        const char *typname = lua_tostring(L, lua_upvalueindex(1));
+        lua_pushfstring(L, "%s: %p", typname, p->knot);
+        return 1;
+    }
+
+    static int w__type(lua_State *L) {
+        lua_pushvalue(L, lua_upvalueindex(1));
+        return 1;
+    }
+
+    static int w__typeOf(lua_State *L) {
+        Proxy *p = static_cast<Proxy *>(lua_touserdata(L, 1));
+        Type *t = luax_type(L, 2);
+        if (!t)
+            luax_pushboolean(L, false);
+        else
+            luax_pushboolean(L, p->type->isa(*t));
+        return 1;
+    }
+
+    static int w__eq(lua_State *L) {
+        Proxy *p1 = static_cast<Proxy *>(lua_touserdata(L, 1));
+        Proxy *p2 = static_cast<Proxy *>(lua_touserdata(L, 2));
+        luax_pushboolean(L, p1->knot == p2->knot && p1->knot != nullptr);
+        return 1;
+    }
+
+    static bool luax_isfulllightuserdatasupported(lua_State *L) {
+        static bool checked = false;
+        static bool supported = false;
+
+        if (sizeof(void*) == 4)
+            return true;
+
+        if (!checked) {
+            lua_pushcclosure(L, [](lua_State *L) -> int {
+                lua_pushlightuserdata(L, (void *) (~((size_t) 0)));
+                return 1;
+            }, 0);
+
+            supported = lua_pcall(L, 0, 1, 0) == 0;
+            checked = true;
+
+            lua_pop(L, 1);
+        }
+        return supported;
+    }
+
+    Type *luax_type(lua_State *L, int idx) {
+        return Type::byName(luaL_checkstring(L, idx));
+    }
 
     Reference *luax_refif(lua_State *L, int type)
     {
@@ -309,6 +374,54 @@ namespace opti
             default:
                 return luaL_error(L, "Attempted to use invalid registry.");
         }
+    }
+
+    lua_State *luax_insistpinnedthread(lua_State *L) {
+        lua_getfield(L, LUA_REGISTRYINDEX, MAIN_THREAD_KEY);
+
+        if (lua_isnoneornil(L, -1)) {
+            lua_pop(L, 1);
+
+            lua_pushthread(L);
+            lua_pushvalue(L, -1);
+            lua_setfield(L, LUA_REGISTRYINDEX, MAIN_THREAD_KEY);
+        }
+
+        lua_State *thread = lua_tothread(L, -1);
+        lua_pop(L, 1);
+        return thread;
+    }
+
+    lua_State *luax_getpinnedthread(lua_State *L) {
+        lua_getfield(L, LUA_REGISTRYINDEX, MAIN_THREAD_KEY);
+        lua_State *thread = lua_tothread(L, -1);
+        lua_pop(L, 1);
+        return thread;
+    }
+
+    void luax_pushtype(lua_State *L, opti::Type &type, opti::Knot *knot) {
+        if (knot == nullptr) {
+            lua_pushnil(L);
+            return;
+        }
+
+        luax_getregistry(L, REGISTRY_KNOTS);
+
+    }
+
+    void luax_rawnewtype(lua_State *L, opti::Type &type, opti::Knot *knot) {
+        Proxy *u = static_cast<Proxy *>(lua_newuserdata(L, sizeof(Proxy)));
+
+        knot->tie();
+
+        u->knot = knot;
+        u->type = &type;
+
+        const char *name = type.getName();
+        luaL_newmetatable(L, name);
+
+
+
     }
 
 }

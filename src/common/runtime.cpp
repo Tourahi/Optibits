@@ -21,6 +21,7 @@ namespace opti
 {
     // Keys
     static const char *MAIN_THREAD_KEY = "_opti_mainthread";
+    typedef uint64 KnotKey;
 
     static int w__gc(lua_State *L) {
         Proxy *p = static_cast<Proxy *>(lua_touserdata(L, 1));
@@ -60,6 +61,22 @@ namespace opti
         return 1;
     }
 
+    static KnotKey luax_computeoptiknotkey(lua_State *L, opti::Knot *knot) {
+        const size_t minalign = sizeof(void*) == 8 ? alignof(std::max_align_t) : 1;
+        uintptr_t key = reinterpret_cast<uintptr_t>(knot);
+
+        if ((key & (minalign - 1)) != 0) {
+            luaL_error(L, "Cannot push opti knot to Lua: unexpected alignment "
+                "(pointer is %p but alignment should be %d)", knot, (int) minalign);
+        }
+
+        static const size_t shift = (size_t) log2(minalign);
+
+        key >>= shift;
+
+        return (KnotKey) key;
+    }
+
     static bool luax_isfulllightuserdatasupported(lua_State *L) {
         static bool checked = false;
         static bool supported = false;
@@ -79,6 +96,40 @@ namespace opti
             lua_pop(L, 1);
         }
         return supported;
+    }
+
+    static void luax_pushoptiknotkey(lua_State *L, KnotKey key) {
+        if (luax_isfulllightuserdatasupported(L))
+            lua_pushlightuserdata(L, (void *) key);
+        else if (key > 0x20000000000000ULL)  // 2^53
+            luaL_error(L, "Cannot push opti knot to Lua: pointer value %p is too large", key);
+        else
+            lua_pushnumber(L, (lua_Number) key);
+    }
+
+    static int w__release(lua_State *L) {
+        Proxy *p = static_cast<Proxy *>(lua_touserdata(L, 1));
+        Knot *knot = p->knot;
+
+        if (knot != nullptr) {
+            p->knot = nullptr;
+            knot->release();
+
+            luax_getregistry(L, REGISTRY_KNOTS);
+
+            if (lua_istable(L, -1)) {
+                KnotKey objectkey = luax_computeoptiknotkey(L, knot);
+                luax_pushoptiknotkey(L, objectkey);
+                lua_pushnil(L);
+                // https://www.lua.org/manual/5.1/manual.html#lua_settable
+                lua_settable(L, -3);
+            }
+
+            lua_pop(L, 1);
+        }
+
+        luax_pushboolean(L, knot != nullptr);
+        return 1;
     }
 
     Type *luax_type(lua_State *L, int idx) {

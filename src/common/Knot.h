@@ -8,7 +8,7 @@
 namespace opti
 {
    /**
-    * Superclass of all objects
+    * Superclass of all knots aka objects
     * Named Knot as a reference to the Weavers in the all souls ;)
     * Hopping to one day grasp and master all the knots of gamedev
     **/
@@ -33,7 +33,7 @@ namespace opti
 
       /**
        * Releases one reference to the Knot i.e. decrements the
-       * reference count by one, and potentially deletes the Object
+       * reference count by one, and potentially deletes the Knot
 	   * if there are no more references.
        **/
       void release();
@@ -42,6 +42,12 @@ namespace opti
       std::atomic<int> count;
   }; // Knot
 
+  /**
+   * Structure wrapping an knot and its associated Type instance. This is used
+   * for storing everything necessary to identify a Knots's properties in
+   * environments where the Type is not easily obtained otherwise, for example in
+   * a Lua state.
+   **/
   struct Proxy
   {
     // Holds type information

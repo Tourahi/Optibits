@@ -141,3 +141,46 @@ UTEST(LuaxPinnedThread, InsistAndGet) {
     lua_close(L);
 }
 
+
+UTEST(LuaxIsType, BasicCases) {
+    lua_State *L = luaL_newstate();
+
+    // Case 1: Not userdata
+    lua_pushnumber(L, 42);
+    opti::Type dummyType("type1", nullptr);
+    ASSERT_FALSE(opti::luax_istype(L, -1, dummyType));
+    lua_pop(L, 1);
+
+    // Case 2: Userdata with matching type
+    opti::Type typeA("typeA", nullptr), typeB("typeB", nullptr);
+    opti::Type typeC("typeC", &typeA);
+
+    typeA.init();
+    typeB.init();
+    typeC.init();
+
+    void *ud = lua_newuserdata(L, sizeof(opti::Proxy));
+    opti::Proxy *p = static_cast<opti::Proxy *>(ud);
+    p->type = &typeA;
+
+    // typeA is-a typeA
+    ASSERT_TRUE(opti::luax_istype(L, -1, typeA));
+    // typeA is not typeB
+    ASSERT_FALSE(opti::luax_istype(L, -1, typeB));
+
+    p->type = &typeC;
+    // typeC is-a typeA
+    ASSERT_TRUE(opti::luax_istype(L, -1, typeA));
+
+    lua_pop(L, 1);
+
+    // Case 3: Userdata with null type pointer
+    ud = lua_newuserdata(L, sizeof(opti::Proxy));
+    p = static_cast<opti::Proxy *>(ud);
+    p->type = nullptr;
+    ASSERT_FALSE(opti::luax_istype(L, -1, typeA));
+    lua_pop(L, 1);
+
+    lua_close(L);
+}
+

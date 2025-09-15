@@ -450,16 +450,6 @@ namespace opti
         return thread;
     }
 
-    void luax_pushtype(lua_State *L, opti::Type &type, opti::Knot *knot) {
-        if (knot == nullptr) {
-            lua_pushnil(L);
-            return;
-        }
-
-        luax_getregistry(L, REGISTRY_KNOTS);
-
-    }
-
     void luax_rawnewtype(lua_State *L, opti::Type &type, opti::Knot *knot) {
         Proxy *u = static_cast<Proxy *>(lua_newuserdata(L, sizeof(Proxy)));
 
@@ -483,6 +473,52 @@ namespace opti
         }
 
         lua_setmetatable(L, -2);
+    }
+
+    void luax_pushtype(lua_State *L, opti::Type &type, opti::Knot *knot) {
+        if (knot == nullptr) {
+            lua_pushnil(L);
+            return;
+        }
+
+        luax_getregistry(L, REGISTRY_KNOTS);
+
+        // The table might not exist - it should be insisted in luax_register_type.
+        if (lua_isnoneornil(L, -1)) {
+            lua_pop(L, 1);
+            return luax_rawnewtype(L, type, knot);
+        }
+
+        KnotKey knotKey = luax_computeoptiknotkey(L, knot);
+
+        // Get the value of optiknots[knot] on the stack.
+        luax_pushoptiknotkey(L, knotKey);
+        lua_gettable(L, -2);
+
+        if (lua_type(L, -1) != LUA_TUSERDATA) {
+            lua_pop(L, 1); // stack[optiknots]
+            luax_rawnewtype(L, type, knot); // stack[optiknots, Proxy]
+            luax_pushoptiknotkey(L, knotKey); // stack[optiknots, Proxy, knotKey]
+            lua_pushvalue(L, -2); // stack[optiknots, Proxy, knotKey, Proxy]
+            lua_settable(L, -4); // optiknots[knotKey] = Proxy
+        }
+
+        // Remove the optiknots table from the stack.
+        lua_remove(L, -2);
+
+        // Keep the Proxy userdata on the stack.
+    }
+
+    bool luax_istype(lua_State *L, int idx, opti::Type &type) {
+        if (lua_type(L, idx) != LUA_TUSERDATA)
+            return false;
+
+        Proxy *p = static_cast<Proxy *>(lua_touserdata(L, idx));
+
+        if (p->type != nullptr)
+            return p->type->isa(type);
+        else
+            return false;
     }
 
 }

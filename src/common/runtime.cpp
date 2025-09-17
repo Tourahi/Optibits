@@ -521,4 +521,130 @@ namespace opti
             return false;
     }
 
+    static Proxy *tryextractproxy(lua_State *L, int idx) {
+        Proxy *u = (Proxy *)lua_touserdata(L, idx);
+
+        if (u == nullptr || u->type == nullptr)
+            return nullptr;
+
+        if (dynamic_cast<Knot *>(u->knot) != nullptr)
+            return u;
+
+        return nullptr;
+    }
+
+    extern "C" int luax_typerror(lua_State *L, int narg, const char *tname) {
+        int argtype = lua_type(L, narg);
+        const char *argtname = nullptr;
+
+        if (argtype == LUA_TUSERDATA && luaL_getmetafield(L, narg, "type") != 0) {
+            lua_pushvalue(L, narg);
+            if (lua_pcall(L, 1, 1, 0) == 0 && lua_type(L, narg) == LUA_TSTRING) {
+                argtname = lua_tostring(L, narg);
+                if (!Type::byName(argtname))
+                    argtname = nullptr;
+            }
+        }
+
+        if (argtname == nullptr)
+            argtname = lua_typename(L, argtype);
+
+        const char *msg = lua_pushfstring(L, "%s expected, got %s", tname, argtname);
+        return luaL_argerror(L, narg, msg);
+    }
+
+    size_t luax_objlen(lua_State *L, int ndx)
+    {
+#if LUA_VERSION_NUM == 501
+        return lua_objlen(L, ndx);
+#else
+        return lua_rawlen(L, ndx);
+#endif
+    }
+
+    Variant luax_checkvariant(lua_State *L, int n, bool allowuserdata, std::set<const void*> *tableSet) {
+        size_t len;
+        const char *str;
+        Proxy *p = nullptr;
+
+        if (n < 0)
+            n += lua_gettop(L) + 1; // Fix the stack position
+
+        switch (lua_type(L, n))
+        {
+        case LUA_TBOOLEAN:
+            return Variant(luax_toboolean(L, n));
+        case LUA_TNUMBER:
+            return Variant(lua_tonumber(L, n));
+        case LUA_TSTRING:
+            str = lua_tolstring(L, n, &len);
+            return Variant(str, len);
+        case LUA_TLIGHTUSERDATA:
+            return Variant(lua_touserdata(L, n));
+        case LUA_TUSERDATA:
+            if (!allowuserdata) {
+                luax_typerror(L, n, "copyable value");
+                return Variant();
+            }
+            p = tryextractproxy(L, n);
+            if (p != nullptr)
+                return Variant(p->type, p->knot);
+            else {
+                luax_typerror(L, n, "optibits type");
+                return Variant();
+            }
+        case LUA_TNIL:
+            return Variant();
+        case LUA_TTABLE:
+            {
+                bool success = true;
+                std::set<const void *> topTableSet;
+
+                if (tableSet == nullptr)
+                    tableSet = &topTableSet;
+
+                const void *tablePointer = lua_topointer(L, n);
+                {
+                    auto result = tableSet->insert(tablePointer);
+                    if (!result.second)
+                        throw opti::Exception("Cycle detected in table");
+                }
+
+                Variant::SharedTable *table = new Variant::SharedTable();
+
+                size_t len = luax_objlen(L, n);
+                if (len > 0)
+                    table->pairs.reserve(len);
+
+                lua_pushnil(L);
+
+                while (lua_next(L, n)) {
+                    table->pairs.emplace_back(
+                        luax_checkvariant(L, -2, allowuserdata, tableSet),
+                        luax_checkvariant(L, -1, allowuserdata, tableSet)
+                    );
+                    lua_pop(L, 1); // pop the value
+
+                    const auto &p = table->pairs.back();
+                    if (p.first.getType() == Variant::UNKNOWN || p.second.getType() == Variant::UNKNOWN) {
+                        success = false;
+                        break;
+                    }
+                }
+
+                tableSet->erase(tablePointer);
+
+                if (success)
+                    return Variant(table);
+                else
+                    table->release();
+            }
+            break;
+        }
+
+        return Variant::unknown();
+    }
+
+
+
 }

@@ -56,7 +56,7 @@ namespace opti
           SharedTable() {}
           virtual ~SharedTable() {}
 
-          std::vector<std::pair<Variant, Variant>> pair;
+          std::vector<std::pair<Variant, Variant>> pairs;
       };
 
       union Data

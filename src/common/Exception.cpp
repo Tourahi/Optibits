@@ -35,7 +35,6 @@ namespace opti
 
   Exception::~Exception() throw()
   {
-
   }
 
 }

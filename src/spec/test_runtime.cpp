@@ -117,7 +117,6 @@ UTEST(LuaxAssertNullError, BasicCases) {
     int status = lua_pcall(L, 2, 1, 0);
     if (status != 0) {
         const char *msg = lua_tostring(L, -1);
-        LOG_INFO("Value: %s", msg);
         ASSERT_STREQ(msg, "Error");
     }
     lua_close(L);
@@ -184,3 +183,51 @@ UTEST(LuaxIsType, BasicCases) {
     lua_close(L);
 }
 
+
+UTEST(LuaxPushVariant, BasicCases) {
+    lua_State *L = luaL_newstate();
+
+    // Boolean
+    opti::Variant v_bool(true);
+    opti::luax_pushvariant(L, v_bool);
+    ASSERT_TRUE(lua_isboolean(L, -1));
+    ASSERT_EQ(static_cast<int>(lua_toboolean(L, -1)), 1);
+    lua_pop(L, 1);
+
+    // Number
+    opti::Variant v_number((double) 1999);
+    opti::luax_pushvariant(L, v_number);
+    ASSERT_TRUE(lua_isnumber(L, -1));
+    ASSERT_EQ((double)lua_tonumber(L, -1), 1999);
+    lua_pop(L, 1);
+
+    lua_close(L);
+}
+
+UTEST(LuaxConvKnot, SingleIndex) {
+    lua_State *L = luaL_newstate();
+    luaL_openlibs(L);
+
+    // Create dummy opti.mod.fn in Lua
+    lua_newtable(L); // opti
+    lua_newtable(L); // mod
+    lua_pushcfunction(L, [](lua_State *L) -> int {
+        // Return the string "converted" and no error
+        lua_pushstring(L, "converted");
+        lua_pushnil(L);
+        return 2;
+    });
+    lua_setfield(L, -2, "fn");
+    lua_setfield(L, -2, "mod");
+    lua_setglobal(L, "opti");
+
+    lua_pushstring(L, "input");
+    int idx = lua_gettop(L);
+
+    int ret = opti::luax_convknot(L, idx, "mod", "fn");
+    ASSERT_EQ(ret, 0);
+    ASSERT_TRUE(lua_isstring(L, idx));
+    ASSERT_STREQ(lua_tostring(L, idx), "converted");
+
+    lua_close(L);
+}

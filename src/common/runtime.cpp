@@ -692,6 +692,75 @@ namespace opti
         }
     }
 
+    int luax_getfunc(lua_State *L, const char *mod, const char *fn) {
+        lua_getglobal(L, "opti");
+        if (lua_isnil(L, -1)) return luaL_error(L, "Could not find global opti!");
+        lua_getfield(L, -1, mod);
+        if (lua_isnil(L, -1)) return luaL_error(L, "Could not find opti.%s!", mod);
+        lua_getfield(L, -1, fn);
+        if (lua_isnil(L, -1)) return luaL_error(L, "Could not find opti.%s.%s!", mod, fn);
+
+        lua_remove(L, -2);
+        lua_remove(L, -2);
+        return 0;
+    }
+
+    int luax_convknot(lua_State *L, int idx, const char *mod, const char *fn) {
+        if (idx < 0 && idx > LUA_REGISTRYINDEX)
+            idx += lua_gettop(L) + 1;
+
+        luax_getfunc(L, mod, fn);
+        lua_pushvalue(L, idx);
+        lua_call(L, 1, 2);
+        luax_assert_nilerror(L, -2);
+        lua_pop(L, 1);
+        lua_replace(L, idx);
+        return 0;
+    }
+
+    int luax_convknot(lua_State *L, const int idxs[], int n, const char *mod, const char *fn) {
+        luax_getfunc(L, mod, fn);
+        for (int i = 0; i < n; i++)
+            lua_pushvalue(L, idxs[i]);
+        lua_call(L, n, 2);
+        luax_assert_nilerror(L, -2);
+        lua_pop(L, 1);
+        if (n > 0)
+            lua_replace(L, idxs[0]);
+        return 0;
+    }
+
+    int luax_convknot(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function) {
+        const int *idxPtr = idxs.size() > 0 ? &idxs[0] : nullptr;
+        return luax_convknot(L, idxPtr, (int) idxs.size(), module, function);
+    }
+
+    // protected mode
+    int luax_pconvknot(lua_State *L, int idx, const char *mod, const char *fn) {
+        luax_getfunc(L, mod, fn);
+        lua_pushvalue(L, idx);
+        int ret = lua_pcall(L, 1, 1, 0);
+        if (ret == 0)
+            lua_replace(L, idx);
+        return ret;
+    }
+
+    int luax_pconvobj(lua_State *L, const int idxs[], int n, const char *mod, const char *fn) {
+        luax_getfunc(L, mod, fn);
+        for (int i = 0; i < n; i++)
+            lua_pushvalue(L, idxs[i]);
+
+        int ret = lua_pcall(L, n, 1, 0);
+        if (ret == 0)
+            lua_replace(L, idxs[0]);
+        return ret;
+    }
+
+    int luax_pconvobj(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function)
+    {
+        const int *idxPtr = idxs.size() > 0 ? &idxs[0] : nullptr;
+        return luax_pconvobj(L, idxPtr, (int) idxs.size(), module, function);
+    }
 
 
 

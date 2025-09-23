@@ -400,7 +400,7 @@ namespace opti
    * @param module The module in the love table.
    * @param function The function in the module.
    **/
-  int luax_convobj(lua_State *L, int idx, const char *module, const char *function);
+  int luax_convknot(lua_State *L, int idx, const char *module, const char *function);
 
   /**
    * Converts an object into another object by the specified function love.module.function.
@@ -415,13 +415,13 @@ namespace opti
    * @param module The module in the love table.
    * @param function The function in the module.
    **/
-  int luax_convobj(lua_State *L, const int idxs[], int n, const char *module, const char *function);
-  int luax_convobj(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function);
+  int luax_convknot(lua_State *L, const int idxs[], int n, const char *module, const char *function);
+  int luax_convknot(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function);
 
   // pcall versions of the above
-  int luax_pconvobj(lua_State *L, int idx, const char *module, const char *function);
-  int luax_pconvobj(lua_State *L, const int idxs[], int n, const char *module, const char *function);
-  int luax_pconvobj(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function);
+  int luax_convknot(lua_State *L, int idx, const char *module, const char *function);
+  int luax_convknot(lua_State *L, const int idxs[], int n, const char *module, const char *function);
+  int luax_convknot(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function);
 
 
   /**

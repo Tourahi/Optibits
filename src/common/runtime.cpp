@@ -645,6 +645,54 @@ namespace opti
         return Variant::unknown();
     }
 
+    void luax_pushvariant(lua_State *L, const Variant &v) {
+        const Variant::Data &data = v.getData();
+
+        switch (v.getType())
+        {
+        case Variant::BOOLEAN:
+            lua_pushboolean(L, data.boolean);
+            break;
+        case Variant::NUMBER:
+            lua_pushnumber(L, data.number);
+            break;
+        case Variant::STRING:
+            lua_pushlstring(L, data.string->str, data.string->len);
+            break;
+        case Variant::SMALLSTRING:
+            lua_pushlstring(L, data.smallstring.str, data.smallstring.len);
+            break;
+        case Variant::LUSERDATA:
+            lua_pushlightuserdata(L, data.userdata);
+            break;
+        case Variant::OPTIKNOT:
+            luax_pushtype(L, *data.knotproxy.type, data.knotproxy.knot);
+            break;
+        case Variant::TABLE:
+        {
+            std::vector<std::pair<Variant, Variant>> &table = data.table->pairs;
+            int tsize = (int) table.size();
+
+            lua_createtable(L, 0, tsize);
+
+            for (int i = 0; i < tsize; ++i)
+            {
+                std::pair<Variant, Variant> &kv = table[i];
+                luax_pushvariant(L, kv.first);
+                luax_pushvariant(L, kv.second);
+                lua_settable(L, -3);
+            }
+
+            break;
+        }
+        case Variant::NIL:
+        default:
+            lua_pushnil(L);
+            break;
+        }
+    }
+
+
 
 
 }

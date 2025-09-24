@@ -498,8 +498,24 @@ namespace opti
    **/
   lua_State *luax_getpinnedthread(lua_State *L);
 
+    /**
+     * Calls luax_objlen/lua_rawlen depending on version
+     **/
+    size_t luax_objlen(lua_State *L, int ndx);
 
-  Type *luax_type(lua_State *L, int idx);
+
+     Type *luax_type(lua_State *L, int idx);
+
+
+    extern "C" {
+        int luax_typerror(lua_State *L, int narg, const char *tname);
+        void luax_register(lua_State *L, const char *name, const luaL_Reg *l);
+        int luax_c_insistglobal(lua_State *L, const char *k);
+    }
+
+    int luax_enumerror(lua_State *L, const char *enumName, const char *value);
+    int luax_enumerror(lua_State *L, const char *enumName, const std::vector<std::string> &values, const char *value);
+
 
 }
 

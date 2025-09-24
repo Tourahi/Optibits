@@ -349,7 +349,147 @@ namespace opti
     }
 
     int luax_register_module(lua_State *L, const WrappedModule &m) {
+        luax_insistregistry(L, REGISTRY_KNOTS);
 
+        Proxy *p = (Proxy *)lua_newuserdata(L, sizeof(Proxy));
+        p->knot = m.module;
+        p->type = m.type;
+
+        luaL_newmetatable(L, m.module->getName());
+        lua_pushvalue(L, -1);
+        lua_setfield(L, -2, "__index");
+        lua_pushcfunction(L, w__gc);
+        lua_setfield(L, -2, "__gc");
+
+        lua_setmetatable(L, -2);
+        lua_setfield(L, -2, m.name); // _modules[name] = proxy
+        lua_pop(L, 1);
+
+        luax_insistglobal(L, "opti");
+
+        lua_newtable(L);
+
+        if (m.functions != nullptr)
+            luax_setfuncs(L, m.functions);
+
+
+        if (m.types != nullptr)
+        {
+            for (const lua_CFunction *t = m.types; *t != nullptr; t++)
+                (*t)(L);
+        }
+
+        lua_pushvalue(L, -1);
+        lua_setfield(L, -3, m.name);
+        lua_remove(L, -2);
+
+        return 1;
+    }
+
+    int luax_preload(lua_State *L, lua_CFunction f, const char *name) {
+        lua_getglobal(L, "package");
+        lua_getfield(L, -1, "preload");
+        lua_pushcfunction(L, f);
+        lua_setfield(L, -2, name);
+        lua_pop(L, 2);
+        return 0;
+    }
+
+    int luax_register_type(lua_State *L, Type *type, ...) {
+        type->init();
+
+        luax_getregistry(L, REGISTRY_KNOTS);
+
+        if (!lua_istable(L, -1)) {
+            lua_newtable(L);
+            lua_replace(L, -2);
+
+            // Create a metatable
+            lua_newtable(L);
+
+            lua_pushliteral(L, "v");
+            lua_setfield(L, -2, "__mode");
+
+            lua_setmetatable(L, -2);
+
+            lua_setfield(L, LUA_REGISTRYINDEX, "_optiknots");
+        }
+        else
+            lua_pop(L, 1);
+
+        luaL_newmetatable(L, type->getName());
+
+        // m.__index = m
+        lua_pushvalue(L, -1);
+        lua_setfield(L, -2, "__index");
+
+        // setup gc
+        lua_pushcfunction(L, w__gc);
+        lua_setfield(L, -2, "__gc");
+
+        // Add equality
+        lua_pushcfunction(L, w__eq);
+        lua_setfield(L, -2, "__eq");
+
+        // Add tostring function.
+        lua_pushstring(L, type->getName());
+        lua_pushcclosure(L, w__tostring, 1);
+        lua_setfield(L, -2, "__tostring");
+
+        // Add type
+        lua_pushstring(L, type->getName());
+        lua_pushcclosure(L, w__type, 1);
+        lua_setfield(L, -2, "type");
+
+        // Add typeOf
+        lua_pushcfunction(L, w__typeOf);
+        lua_setfield(L, -2, "typeOf");
+
+        // Add release
+        lua_pushcfunction(L, w__release);
+        lua_setfield(L, -2, "release");
+
+        // Add __close for lua 5.4 (just calls release)
+        lua_pushcfunction(L, w__release);
+        lua_setfield(L, -2, "__close");
+
+        va_list fs;
+        va_start(fs, type);
+        for (const luaL_Reg *f = va_arg(fs, const luaL_Reg *); f; f = va_arg(fs, const luaL_Reg *))
+            luax_setfuncs(L, f);
+        va_end(fs);
+
+        lua_pop(L, 1); // Pops metatable.
+        return 0;
+    }
+
+    void luax_gettypemetatable(lua_State *L, const Type &type) {
+        const char *name = type.getName();
+        lua_getfield(L, LUA_REGISTRYINDEX, name);
+    }
+
+    int luax_table_insert(lua_State *L, int tindex, int vindex, int pos) {
+        if (tindex < 0)
+            tindex = lua_gettop(L)+1+tindex;
+        if (vindex < 0)
+            vindex = lua_gettop(L)+1+vindex;
+
+        if (pos == -1) {
+            lua_pushvalue(L, vindex);
+            lua_rawseti(L, tindex, (int) luax_objlen(L, tindex)+1);
+            return 0;
+        }
+        else if (pos < 0)
+            pos = (int) luax_objlen(L, tindex)+1+pos;
+
+        for (int i = (int) luax_objlen(L, tindex)+1; i > pos; i--) {
+            lua_rawgeti(L, tindex, i-1);
+            lua_rawseti(L, tindex, i);
+        }
+
+        lua_pushvalue(L, vindex);
+        lua_rawseti(L, tindex, pos);
+        return 0;
     }
 
     int luax_insist(lua_State *L, int idx, const char *k) {
@@ -551,6 +691,22 @@ namespace opti
 
         const char *msg = lua_pushfstring(L, "%s expected, got %s", tname, argtname);
         return luaL_argerror(L, narg, msg);
+    }
+
+    int luax_enumerror(lua_State *L, const char *enumName, const char *value) {
+        return luaL_error(L, "Invalid %s: %s", enumName, value);
+    }
+
+    int luax_enumerror(lua_State *L, const char *enumName, const std::vector<std::string> &values, const char *value) {
+        std::stringstream valueStream;
+        bool first = true;
+        for (auto value : values) {
+            valueStream << (first ? "'" : ", '") << value << "'";
+            first = false;
+        }
+
+        std::string valueString = valueStream.str();
+        return luaL_error(L, "Invalid %s '%s', expected one of: %s", enumName, value, valueString.c_str());
     }
 
     size_t luax_objlen(lua_State *L, int ndx)

@@ -901,7 +901,7 @@ namespace opti
         return ret;
     }
 
-    int luax_pconvobj(lua_State *L, const int idxs[], int n, const char *mod, const char *fn) {
+    int luax_pconvknot(lua_State *L, const int idxs[], int n, const char *mod, const char *fn) {
         luax_getfunc(L, mod, fn);
         for (int i = 0; i < n; i++)
             lua_pushvalue(L, idxs[i]);
@@ -912,12 +912,53 @@ namespace opti
         return ret;
     }
 
-    int luax_pconvobj(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function)
+    int luax_pconvknot(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function)
     {
         const int *idxPtr = idxs.size() > 0 ? &idxs[0] : nullptr;
-        return luax_pconvobj(L, idxPtr, (int) idxs.size(), module, function);
+        return luax_pconvknot(L, idxPtr, (int) idxs.size(), module, function);
     }
 
+    int luax_c_insistglobal(lua_State *L, const char *k) {
+        return luax_insistglobal(L, k);
+    }
 
+    void luax_register(lua_State *L, const char *name, const luaL_Reg *l) {
+        if (name)
+            lua_newtable(L);
+        luax_setfuncs(L, l);
+        if (name) {
+            lua_pushvalue(L, -1);
+            lua_setglobal(L, name);
+        }
+    }
+
+    void luax_runwrapper(lua_State *L, const char *filedata,  size_t datalen, const char *filename, const Type &type, void *ffifuncs) {
+        luax_gettypemetatable(L, type);
+
+        if (lua_istable(L, -1)) {
+            std::string chunkname = std::string("=[opti \"") + std::string(filename) + std::string("\"]");
+
+            luaL_loadbuffer(L, filedata, datalen, chunkname.c_str());
+            lua_pushvalue(L, -2);
+            if (ffifuncs != nullptr)
+                luax_pushpointerasstring(L, ffifuncs);
+            else
+                lua_pushnil(L);
+            lua_call(L, 2, 0);
+        }
+        lua_pop(L, 1); // pop metatable
+    }
+
+    OPTI_EXPORT int luax_resume(lua_State *L, int nargs, int* nres) {
+#if   LUA_VERSION_NUM >= 504
+        return lua_resume(L, nullptr, nargs, nres);
+#elif LUA_VERSION_NUM >= 502
+        OPTI_UNUSED(nres);
+        return lua_resume(L, nullptr, nargs);
+#else
+        OPTI_UNUSED(nres);
+        return lua_resume(L, nargs);
+#endif
+    }
 
 }

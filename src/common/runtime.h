@@ -382,14 +382,14 @@ namespace opti
   bool luax_istype(lua_State *L, int idx, opti::Type &type);
 
   /**
-   * Gets the function love.module.function and puts it on top of the stack (alone). If the
-   * love table, the module, or the function does not exist, an error is returned.
+   * Gets the function opti.module.function and puts it on top of the stack (alone). If the
+   * opti table, the module, or the function does not exist, an error is returned.
    * @return An error if nonexistent, or 1 if successful.
    **/
   int luax_getfunction(lua_State *L, const char *module, const char *function);
 
   /**
-   * Converts an object into another object by the specified function love.module.function.
+   * Converts an object into another object by the specified function opti.module.function.
    * The conversion function must accept a single object of the relevant type as a parameter,
    * and returnone value. If the function does not exist (see luax_getfunction), an error is returned.
    *
@@ -397,13 +397,13 @@ namespace opti
    *
    * @param L The Lua state.
    * @param idx The index on the stack.
-   * @param module The module in the love table.
+   * @param module The module in the opti table.
    * @param function The function in the module.
    **/
   int luax_convknot(lua_State *L, int idx, const char *module, const char *function);
 
   /**
-   * Converts an object into another object by the specified function love.module.function.
+   * Converts an object into another object by the specified function opti.module.function.
    * The conversion function must accept a single object of the relevant type as its first parameter,
    * and return one value. If the function does not exist (see luax_getfunction), an error is returned.
    *
@@ -412,7 +412,7 @@ namespace opti
    * @param L The Lua state.
    * @param idxs An array of indices on the stack.
    * @param n How many arguments are being passed.
-   * @param module The module in the love table.
+   * @param module The module in the opti table.
    * @param function The function in the module.
    **/
   int luax_convknot(lua_State *L, const int idxs[], int n, const char *module, const char *function);
@@ -498,24 +498,51 @@ namespace opti
    **/
   lua_State *luax_getpinnedthread(lua_State *L);
 
-    /**
-     * Calls luax_objlen/lua_rawlen depending on version
-     **/
-    size_t luax_objlen(lua_State *L, int ndx);
+  /**
+   * Calls luax_objlen/lua_rawlen depending on version
+   **/
+  size_t luax_objlen(lua_State *L, int ndx);
 
 
-     Type *luax_type(lua_State *L, int idx);
+   Type *luax_type(lua_State *L, int idx);
 
 
-    extern "C" {
-        int luax_typerror(lua_State *L, int narg, const char *tname);
-        void luax_register(lua_State *L, const char *name, const luaL_Reg *l);
-        int luax_c_insistglobal(lua_State *L, const char *k);
-    }
+  extern "C" {
+      int luax_typerror(lua_State *L, int narg, const char *tname);
+      void luax_register(lua_State *L, const char *name, const luaL_Reg *l);
+      int luax_c_insistglobal(lua_State *L, const char *k);
+  }
 
-    int luax_enumerror(lua_State *L, const char *enumName, const char *value);
-    int luax_enumerror(lua_State *L, const char *enumName, const std::vector<std::string> &values, const char *value);
+  int luax_enumerror(lua_State *L, const char *enumName, const char *value);
+  int luax_enumerror(lua_State *L, const char *enumName, const std::vector<std::string> &values, const char *value);
 
+  /**
+ * Converts an object into another object by the specified function opti.module.function.
+ * The conversion function must accept a single object of the relevant type as its first parameter,
+ * and return one value. If the function does not exist (see luax_getfunction), an error is returned.
+ *
+ * Note that the initial object at idx is replaced by the new object.
+ *
+ * @param L The Lua state.
+ * @param idxs An array of indices on the stack.
+ * @param n How many arguments are being passed.
+ * @param module The module in the opti table.
+ * @param function The function in the module.
+ **/
+  int luax_convobj(lua_State *L, const int idxs[], int n, const char *module, const char *function);
+  int luax_convobj(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function);
+
+  int luax_pconvknot(lua_State *L, int idx, const char *module, const char *function);
+  int luax_pconvknot(lua_State *L, const int idxs[], int n, const char *module, const char *function);
+  int luax_pconvknot(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function);
+
+  void luax_runwrapper(lua_State *L, const char *filedata, size_t datalen, const char *filename, const Type &type, void *ffifuncs);
+
+  /**
+  * Compatibility shim for lua_resume
+  * Exported because it's used in the launcher
+  **/
+  OPTI_EXPORT int luax_resume(lua_State *L, int nargs, int* nres);
 
 }
 

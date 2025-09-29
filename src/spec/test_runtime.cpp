@@ -225,6 +225,8 @@ UTEST(LuaxConvKnot, SingleIndex) {
     int idx = lua_gettop(L);
 
     int ret = opti::luax_convknot(L, idx, "mod", "fn");
+    /*std::vector<int> indices = {};
+    opti::luax_pconvknot(L, indices, "mod", "fn");*/
     ASSERT_EQ(ret, 0);
     ASSERT_TRUE(lua_isstring(L, idx));
     ASSERT_STREQ(lua_tostring(L, idx), "converted");

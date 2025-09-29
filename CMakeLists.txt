@@ -158,6 +158,8 @@ add_library(optibits_common STATIC
     src/common/Reference.cpp
     src/common/runtime.cpp
     src/common/runtime.h
+        src/common/utf8.h
+        src/common/utf8.cpp
 )
 target_link_libraries(optibits_common PUBLIC
     optidep::Lua

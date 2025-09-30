@@ -6,11 +6,13 @@
     * android
     * apple
     * b64
-    * Color
+    * - [ ] Color
+      * Sept week-1 
     * - [x] config
     * - [x] Data
     * - [x] delay
-    * EnumMap
+    * - [ ] EnumMap 
+      * Sept week-1
     * - [x] Exception
     * floattypes
     * - [x] int
@@ -25,11 +27,12 @@
     * pixelformat
     * Range
     * - [x] Reference
-    * - [ ] runtime **in-progress**
-    * Stream
+    * - [x] runtime **in-progress**
+    * - [ ] Stream
+      * Sept week-1
     * - [x] StringMap
     * - [x] types
-    * utf8
+    * - [x] utf8
     * - [x] Variant
   
 

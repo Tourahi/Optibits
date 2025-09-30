@@ -43,7 +43,7 @@ namespace opti
 
     return widestr;
   }
-  
+
   void replace_char(std::string &str, char find, char replace)
   {
     int length = str.length();

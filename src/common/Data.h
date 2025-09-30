@@ -41,7 +41,7 @@ namespace opti
       /**
        * Gets the size of the Data in bytes.
        **/
-      virtual size_t *getSize() const = 0;
+      virtual size_t getSize() const = 0;
 
       /**
        * Gets the Mutex associated with this Data object. Creates it in a thread-

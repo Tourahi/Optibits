@@ -158,14 +158,23 @@ add_library(optibits_common STATIC
     src/common/Reference.cpp
     src/common/runtime.cpp
     src/common/runtime.h
-        src/common/utf8.h
-        src/common/utf8.cpp
+    src/common/utf8.h
+    src/common/utf8.cpp
 )
 target_link_libraries(optibits_common PUBLIC
     optidep::Lua
     optidep::SDL
 )
 
+
+add_library(optibits_data STATIC
+    src/modules/data/ByteData.cpp
+    src/modules/data/ByteData.h
+)
+target_link_libraries(optibits_data PUBLIC
+    optidep::Lua
+    optidep::Zlib
+)
 
 #
 # liboptibits
@@ -189,6 +198,7 @@ set_target_properties(liboptibits PROPERTIES
     LIBRARY_OUTPUT_NAME "${OPTIBITS_LIB_NAME}")
 set(LIBOPTIBITS_DEPENDENCIES
     optibits_common
+    optibits_data
 )
 target_link_libraries(liboptibits ${LIBOPTIBITS_DEPENDENCIES})
 

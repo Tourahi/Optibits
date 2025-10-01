@@ -176,6 +176,31 @@ target_link_libraries(optibits_data PUBLIC
     optidep::Zlib
 )
 
+add_library(optibits_thread_root STATIC
+    src/modules/thread/Thread.h
+    src/modules/thread/threads.cpp
+    src/modules/thread/threads.h
+)
+target_link_libraries(optibits_thread_root PUBLIC
+    optidep::Lua
+)
+
+add_library(optibits_thread_sdl STATIC
+    src/modules/thread/sdl/Thread.cpp
+    src/modules/thread/sdl/Thread.h
+    src/modules/thread/sdl/threads.cpp
+    src/modules/thread/sdl/threads.h
+)
+target_link_libraries(optibits_thread_sdl PUBLIC
+    optidep::SDL
+)
+
+add_library(optibits_thread INTERFACE)
+target_link_libraries(optibits_thread INTERFACE
+    optibits_thread_root
+    optibits_thread_sdl
+)
+
 #
 # liboptibits
 #
@@ -199,6 +224,7 @@ set_target_properties(liboptibits PROPERTIES
 set(LIBOPTIBITS_DEPENDENCIES
     optibits_common
     optibits_data
+    optibits_thread
 )
 target_link_libraries(liboptibits ${LIBOPTIBITS_DEPENDENCIES})
 
